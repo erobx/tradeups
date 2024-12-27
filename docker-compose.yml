@@ -1,0 +1,24 @@
+services:
+  frontend:
+    container_name: tradeups_ui
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/static:/app/static
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+
+  backend:
+    container_name: tradeups_api
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8080:8080"

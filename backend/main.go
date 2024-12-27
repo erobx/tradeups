@@ -8,11 +8,12 @@ import (
 
 func main() {
 	fmt.Println("Starting server...")
+	http.HandleFunc("/", getRoot)
 	http.HandleFunc("/api/test", getTest)
-	http.ListenAndServe("127.0.0.1:8080", nil)
+	http.ListenAndServe(":8080", nil)
 
 	//go func() {
-	//	if err := http.ListenAndServe(":8000", nil); !errors.Is(err, http.ErrServerClosed) {
+	//	if err := http.ListenAndServe(":8080", nil); !errors.Is(err, http.ErrServerClosed) {
 	//		log.Fatalln(err)
 	//	}
 	//}()
@@ -31,9 +32,18 @@ func main() {
 	//log.Println("Server exiting")
 }
 
+func getRoot(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	data := map[string]string{
+		"hello": "world",
+	}
+	json.NewEncoder(w).Encode(data)
+}
+
 func getTest(w http.ResponseWriter, r *http.Request) {
 	data := map[string]string{
-		"test": "works!",
+		"test": "changes",
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Access-Control-Allow-Origin", "*")

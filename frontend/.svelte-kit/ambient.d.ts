@@ -63,6 +63,7 @@ declare module '$env/static/private' {
 	export const LOGNAME: string;
 	export const npm_package_type: string;
 	export const _: string;
+	export const DESKTOP_AUTOSTART_ID: string;
 	export const npm_package_private: string;
 	export const npm_package_scripts_check_watch: string;
 	export const npm_package_devDependencies_autoprefixer: string;
@@ -82,7 +83,6 @@ declare module '$env/static/private' {
 	export const XDG_MENU_PREFIX: string;
 	export const XDG_RUNTIME_DIR: string;
 	export const npm_config_frozen_lockfile: string;
-	export const ZEITGEIST_DATA_PATH: string;
 	export const DISPLAY: string;
 	export const npm_package_devDependencies_tailwindcss_animate: string;
 	export const CLUTTER_DEFAULT_FPS: string;
@@ -117,6 +117,7 @@ declare module '$env/static/private' {
 	export const npm_package_devDependencies__sveltejs_adapter_auto: string;
 	export const npm_command: string;
 	export const PNPM_SCRIPT_SRC_DIR: string;
+	export const I3SOCK: string;
 	export const npm_package_scripts_preview: string;
 	export const npm_package_dependencies_mode_watcher: string;
 	export const VTE_VERSION: string;
@@ -193,6 +194,7 @@ declare module '$env/dynamic/private' {
 		LOGNAME: string;
 		npm_package_type: string;
 		_: string;
+		DESKTOP_AUTOSTART_ID: string;
 		npm_package_private: string;
 		npm_package_scripts_check_watch: string;
 		npm_package_devDependencies_autoprefixer: string;
@@ -212,7 +214,6 @@ declare module '$env/dynamic/private' {
 		XDG_MENU_PREFIX: string;
 		XDG_RUNTIME_DIR: string;
 		npm_config_frozen_lockfile: string;
-		ZEITGEIST_DATA_PATH: string;
 		DISPLAY: string;
 		npm_package_devDependencies_tailwindcss_animate: string;
 		CLUTTER_DEFAULT_FPS: string;
@@ -247,6 +248,7 @@ declare module '$env/dynamic/private' {
 		npm_package_devDependencies__sveltejs_adapter_auto: string;
 		npm_command: string;
 		PNPM_SCRIPT_SRC_DIR: string;
+		I3SOCK: string;
 		npm_package_scripts_preview: string;
 		npm_package_dependencies_mode_watcher: string;
 		VTE_VERSION: string;
