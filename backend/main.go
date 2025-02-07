@@ -1,37 +1,29 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 
-	"github.com/erobx/tradeups/backend/pkg/db"
-	"github.com/erobx/tradeups/backend/pkg/handlers"
-	"github.com/gofiber/fiber/v3"
-	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/erobx/tradeups/backend/internal/db"
+	"github.com/erobx/tradeups/backend/internal/server"
+	"github.com/joho/godotenv"
 )
 
-func defineRoutes(app *fiber.App) {
-	api := app.Group("/api")
-	api.Get("/getUser", handlers.GetUser)
-	api.Post("/createUser", handlers.CreateUser)
-}
-
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := db.NewPostgresDB()
+	if err != nil {
+		panic(err)
+	}
+
 	fmt.Println("Starting server...")
+	s := server.NewServer("8080", db)
 
-	app := fiber.New()
-	db.Connect()
-	defer db.Postgresql.Close(context.Background())
-
-	//app.Use(cors.New())
-
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
-		AllowHeaders: []string{"Content-Type"},
-	}))
-
-	defineRoutes(app)
-
-	log.Fatal(app.Listen(":8080"))
+	if err := s.Run(); err != nil {
+		log.Fatalf("Server could not be ran: %v", err)
+	}
 }

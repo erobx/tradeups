@@ -8,11 +8,20 @@ import (
 type User struct {
 	Uuid     uuid.UUID `json:"uuid"`
 	Username string    `json:"username"`
-	Password string    `json:"password"`
 	Email    string    `json:"email"`
+	Password string    `json:"password"`
 	Hash     string    `json:"hash"`
 }
 
 type Inventory struct {
 	Skins []skins.Skin
+}
+
+type Creds struct {
+	Email string `json:"email"`
+	Password string `json:"password"`
+}
+
+type CheckEmail struct {
+	Email string `json:"email"`
 }

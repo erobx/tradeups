@@ -1,8 +1,6 @@
-FROM node:23-alpine
-
+FROM oven/bun:latest AS builder
 WORKDIR /app
-RUN npm install -g pnpm
 COPY . .
-RUN pnpm install
-
-CMD ["pnpm", "run", "dev", "--host"]
+RUN bun install --force
+EXPOSE 5173
+CMD ["bun", "run", "dev", "--host", "0.0.0.0"]
