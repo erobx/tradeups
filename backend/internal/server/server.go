@@ -54,7 +54,8 @@ func (s *Server) Run() error {
 
 func (s *Server) UseMiddleware() error {
 	s.fiber.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"*"},
+		AllowOrigins: []string{"http://localhost:5173"},
+		AllowCredentials: true,
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept"},
 		AllowMethods: []string{"OPTIONS"},
 	}))
@@ -64,8 +65,8 @@ func (s *Server) UseMiddleware() error {
 func (s *Server) MapHandlers() error {
 	auth := s.fiber.Group("/auth")
 	auth.Post("/register", handlers.Register(s.db))
-	// login
-	//auth.Post("/login", )
+	auth.Post("/login", handlers.Login(s.db))
+	auth.Get("/user", handlers.GetUser(s.db))
 
 	api := s.fiber.Group("/api")
 	//api.Get("/user/:id", handlers.Login(s.db))

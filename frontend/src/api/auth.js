@@ -3,13 +3,16 @@
  *
  */
 
+const baseUrl = "http://localhost:8080/auth"
+
 // {"username":"","email":"","password":""}
-const submitSignup = async (username, email, password) => {
+export const submitSignup = async (username, email, password) => {
     const user = {
         username: username,
         email: email,
         password: password,
     }
+
     const opts = {
         method: 'POST',
         headers: {
@@ -19,12 +22,34 @@ const submitSignup = async (username, email, password) => {
     }
 
     try {
-        const res = await fetch("http://localhost:8080/auth/register", opts)
-        const data = await res.json()
-        return data // { jwt: string }
+        const res = await fetch(baseUrl+"/register", opts)
+        return res.status
     } catch (error) {
         console.error('Error:', error)
     }
 }
 
-export default submitSignup
+export const submitLogin = async (email, password) => {
+    const creds = {
+        email: email,
+        password: password,
+    }
+
+    const opts = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(creds)
+    }
+
+    try {
+        const res = await fetch(baseUrl+"/login", opts)
+        const data = await res.json()
+        const jwt = data.jwt
+        localStorage.setItem("jwt", jwt)
+        return res.status
+    } catch (error) {
+        console.error('Error:', error)
+    }
+}

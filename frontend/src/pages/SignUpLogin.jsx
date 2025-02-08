@@ -1,23 +1,41 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import SignUp from "../components/SignUp"
 import Login from "../components/Login"
 
 function SignUpLogin() {
-    const [token, setToken] = useState('')
+    const [formState, setFormState] = useState("LOGIN")
 
-    useEffect(() => {
-        const token = localStorage.getItem('jwt-token')
-        setToken(token)
-    }, [])
+    const handleFormChange = () => {
+        if (formState === "LOGIN") {
+            setFormState("SIGNUP")
+        } else {
+            setFormState("LOGIN")
+        }
+    }
 
-    if (!token) {
+    if (formState === "LOGIN") {
         return (
-            <SignUp />
+            <div className="flex flex-col gap-2 items-center justify-center">
+                <Login />
+                <div className="flex gap-1">
+                    <p>Don't have an account?</p>
+                    <a className="link link-info" onClick={handleFormChange}>Sign up here</a>
+                </div>
+            </div>
         )
     }
 
     return (
-        <Login />
+        <div className="flex flex-col gap-2 items-center justify-center">
+            <h1 className="font-bold mt-5">
+                Welcome to TradeUps!
+            </h1>
+            <SignUp />
+            <div className="flex gap-1">
+                <p>Already have an account?</p>
+                <a className="link link-info" onClick={handleFormChange}>Login here</a>
+            </div>
+        </div>
     )
 }
 

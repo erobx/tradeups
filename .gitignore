@@ -20,6 +20,9 @@ Thumbs.db
 !.env.test
 *.txt
 *.sql
+*.pem
+*.pub
+jwt-key-ecdsa
 
 # Vite
 vite.config.js.timestamp-*

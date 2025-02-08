@@ -1,16 +1,16 @@
-import { useNavigate, Link } from "react-router";
+import { Link } from "react-router"
+import useAuth from "../stores/authStore"
 
 function Navbar() {
-    const navigate = useNavigate()
-
+    const { loggedIn, setLoggedIn } = useAuth()
     return (
         <div className="navbar bg-base-300 shawdow-sm">
             <div className="flex-1">
                 <Link to="/" className="btn btn-ghost text-xl">TradeUps</Link>
             </div>
-            <div className="flex-none">
-                <Link to="/signin" className="btn btn-ghost text-xl">Sign Up</Link>
-            </div>
+            {!loggedIn && (<div className="flex-none">
+                <Link to="/login" className="btn btn-ghost text-xl">Login</Link>
+            </div>)}
         </div>
     )
 }
