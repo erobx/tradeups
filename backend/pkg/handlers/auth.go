@@ -35,8 +35,7 @@ func Login(p *db.PostgresDB) fiber.Handler {
 			return err
 		}
 
-		// query for email
-		hash, err := p.GetHash(creds.Email)
+		id, hash, err := p.GetHash(creds.Email)
 		if err != nil {
 			log.Printf("Email doesn't exist: %v\n", err)
 			return c.SendStatus(400)
@@ -50,7 +49,7 @@ func Login(p *db.PostgresDB) fiber.Handler {
 
 		//createAndSetJWT(c)
 		log.Printf("User %s logged in\n", creds.Email)
-		jwt, _ := newJWT()
+		jwt, _ := newJWT(id)
 		return c.JSON(fiber.Map{
 			"jwt": jwt,
 		})
@@ -90,7 +89,6 @@ func Register(p *db.PostgresDB) fiber.Handler {
 		}
 
 		newUser.Uuid = uuid.New()
-
 		hashed, err := bcrypt.GenerateFromPassword([]byte(newUser.Password), bcrypt.DefaultCost)
 		if err != nil {
 			return c.SendStatus(500)
@@ -102,15 +100,15 @@ func Register(p *db.PostgresDB) fiber.Handler {
 			return c.SendStatus(500)
 		}
 
-		createAndSetJWT(c)
+		createAndSetJWT(c, newUser.Uuid.String())
 		log.Printf("New user %s registed\n", newUser.Username)
 		return c.SendStatus(200)
 	}
 }
 
-func createAndSetJWT(c fiber.Ctx) {
+func createAndSetJWT(c fiber.Ctx, id string) {
 		// new user created, make new jwt
-		jwt, err := newJWT()
+		jwt, err := newJWT(id)
 		if err != nil {
 			log.Printf("JWT not signed: %v\n", err)
 		}
@@ -125,10 +123,11 @@ func readPrivKey() ([]byte, error) {
 	return b, err
 }
 
-func newJWT() (string, error) {
+func newJWT(id string) (string, error) {
 	claims := jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
 		IssuedAt: jwt.NewNumericDate(time.Now()),
+		Subject: id,
 		Issuer: "tradeups",
 	}
 

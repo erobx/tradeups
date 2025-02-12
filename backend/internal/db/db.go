@@ -60,19 +60,18 @@ func (p *PostgresDB) CreateUser(u *user.User) error {
 	return err
 }
 
-func (p *PostgresDB) GetHash(email string) (string, error) {
+func (p *PostgresDB) GetHash(email string) (id, hash string, err error) {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
 
-	var hash string
-	q := "select hash from users where email=$1"
+	q := "select id, hash from users where email=$1"
 	row := p.conn.QueryRow(context.Background(), q, email)
-	err := row.Scan(&hash)
+	err = row.Scan(&id, &hash)
 	if err != nil {
-		return "", err
+		return id, hash, err
 	}
 
-	return hash, nil
+	return id, hash, err
 }
 
 func AddSkin(s *skins.Skin) error {

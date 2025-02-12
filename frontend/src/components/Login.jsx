@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { submitLogin } from "../api/auth"
 import { useNavigate } from "react-router"
+import useAuth from "../stores/authStore"
 
 function Login() {
     const navigate = useNavigate()
+    const { loggedIn, setLoggedIn } = useAuth()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -16,7 +18,8 @@ function Login() {
         try {
             const status = await submitLogin(email, password)
             if (status === 200) {
-                navigate("/")
+                setLoggedIn(true)
+                navigate("/dashboard")
                 resetForm()
             } else {
                 console.error("Login failed. Please check your credentials.")

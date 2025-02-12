@@ -1,9 +1,11 @@
 import { useState } from "react"
 import { submitSignup } from "../api/auth"
 import { useNavigate } from "react-router"
+import useAuth from "../stores/authStore"
 
 function SignUp() {
     const navigate = useNavigate()
+    const { loggedIn, setLoggedIn } = useAuth()
     const [username, setUsername] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -22,6 +24,7 @@ function SignUp() {
         try {
             const status = await submitSignup(username, email, password) 
             if (status === 200) {
+                setLoggedIn(true)
                 navigate("/")
                 resetForm()
             } else {
