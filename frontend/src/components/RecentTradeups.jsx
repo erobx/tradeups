@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react"
 import { textMap } from "../constants/rarity"
+import { useNavigate } from "react-router"
 
 function ListRow({ tradeupId, rarity, status, skins, value }) {
+  const navigate = useNavigate()
   const textColor = textMap[rarity]
   const [statusColor, setStatusColor] = useState("")
 
   const logTradeupId = () => {
-    console.log(tradeupId)
+    navigate(`/tradeups/${tradeupId}`)
   }
 
   useEffect(() => {

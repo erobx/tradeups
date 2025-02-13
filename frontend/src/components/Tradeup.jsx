@@ -1,5 +1,6 @@
 import { useEffect } from "react"
 import { useParams } from "react-router"
+import TradeupGrid from "./TradeupGrid"
 
 function Tradeup() {
   const params = useParams()
@@ -10,8 +11,8 @@ function Tradeup() {
   }, [])
 
   return (
-    <div>
-      {tradeupId}
+    <div className="flex flex-col items-center">
+      <TradeupGrid />
     </div>
   )
 }

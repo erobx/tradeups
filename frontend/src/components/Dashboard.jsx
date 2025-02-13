@@ -7,6 +7,7 @@ function Dashboard() {
       <div>
         <RecentTradeups />
       </div>
+      <div className="divider divider-horizontal"></div>
       <div>
         <Stats />
       </div>
