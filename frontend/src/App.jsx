@@ -3,10 +3,11 @@ import Navbar from "./components/Navbar"
 import LandingPage from "./pages/LandingPage"
 import SignUpLogin from "./pages/SignUpLogin"
 import DashboardPage from "./pages/DashboardPage"
-import TradeupsPage from "./pages/TradeupsPage"
+import LiveGroups from "./pages/LiveGroups"
 import Tradeup from "./components/Tradeup"
 import { useEffect, useState } from "react"
 import useAuth from "./stores/authStore"
+import Store from "./pages/Store"
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuth()
@@ -35,7 +36,8 @@ function App() {
       <Routes>
         <Route index element={<LandingPage />} />
         <Route path="/login" element={loggedIn ? <DashboardPage /> : <SignUpLogin />} />
-        <Route path="/tradeups" element={<TradeupsPage />} />
+        <Route path="/store" element={<Store />} />
+        <Route path="/tradeups" element={<LiveGroups />} />
         <Route path="/tradeups/:tradeupId" element={<Tradeup />} />
         <Route path="/dashboard/*" element={loggedIn ? <DashboardPage /> : <SignUpLogin />} />
       </Routes>

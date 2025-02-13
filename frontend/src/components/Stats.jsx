@@ -16,7 +16,6 @@ function Stats() {
   
   return (
     <div className="flex flex-col items-center">
-      <h1 className="font-bold text-info text-3xl mb-0.5">Statistics</h1>
       <div className="stats bg-base-300 shadow-md">
         <div className="stat">
           <div className="stat-title">Recent winnings</div>

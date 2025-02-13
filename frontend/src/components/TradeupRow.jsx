@@ -66,15 +66,9 @@ function ButtonPanel({ tradeupId }) {
   }
 
   return (
-    <div className="card card-sm">
-      <div className="card-body">
-        <div className="card-title">
-          <button className="btn btn-soft rounded-md btn-success" onClick={onJoin}>
-            Join
-          </button>
-        </div>
-      </div>
-    </div>
+    <button className="btn btn-soft rounded-md btn-success w-40" onClick={onJoin}>
+      Join
+    </button>
   )
 }
 
@@ -100,11 +94,11 @@ function TradeupRow({ id }) {
   },[])
 
   return (
-    <div className="join bg-base-300 lg:w-3/4 rounded-md">
+    <div className="join bg-base-300 border-6 border-base-200 items-center lg:w-3/4 rounded-md">
       <InfoPanel className="join-item" count={countItems} />
       <div className={`divider divider-horizontal ${dividerColor}`}></div>
 
-      <ItemCarousel className="join-item"/>
+      <ItemCarousel className="join-item" />
       <div className="divider divider-horizontal divider-secondary"></div>
 
       <DetailsPanel className="join-item" total={totalPrice} />
@@ -113,9 +107,7 @@ function TradeupRow({ id }) {
       <PlayersPanel className="join-item" players={tempPlayers} />
       <div className="divider divider-horizontal divider-primary"></div>
 
-      <ButtonPanel
-        tradeupId={id}
-      />
+      <ButtonPanel className="join-item" tradeupId={id} />
     </div>
   )
 }

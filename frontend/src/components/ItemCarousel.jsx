@@ -45,8 +45,8 @@ function ItemCarousel() {
   return (
     <div ref={carouselRef} className="carousel carousel-center rounded-box w-1/2">
       {
-        carouselImgSrc.map(imgSrc =>
-          <div key={imgSrc} className="carousel-item">
+        carouselImgSrc.map((imgSrc, index) =>
+          <div key={index} className="carousel-item">
             <img
               width={imgWidth}
               height={imgHeight}

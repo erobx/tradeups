@@ -48,7 +48,7 @@ function InventoryModal() {
       <button className="btn btn-primary" onClick={()=>document.getElementById('my_modal_2').showModal()}>Add Skin</button>
       <dialog id="my_modal_2" className="modal">
         <div className="modal-box max-w-7xl max-h-3xl">
-          <h3 className="font-bold text-lg">Select a skin</h3>
+          <h3 className="font-bold text-lg">Showing all available skins...</h3>
           <div className="grid grid-cols-6 grid-rows-3 gap-2">
             {currentItems.map((s, index) => (
               <ModalItem

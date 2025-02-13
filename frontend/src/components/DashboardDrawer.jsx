@@ -1,5 +1,6 @@
 import { Link } from "react-router"
 import inventory from "../assets/inventory.svg"
+import dashboard from "../assets/dashboard.svg"
 
 function DashboardDrawer() {
   return (
@@ -18,7 +19,12 @@ function DashboardDrawer() {
             <li>
               <Link to="/dashboard" className="font-bold text-sm">
                 <div className="flex gap-2 items-center">
-                  Home
+                  <img src={dashboard} 
+                    width={30}
+                    height={30}
+                    alt="Dashboard"
+                  />
+                  Dashboard
                 </div>
               </Link>
             </li>
