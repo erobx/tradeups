@@ -14,7 +14,7 @@ type User struct {
 }
 
 type Inventory struct {
-	Skins []skins.Skin
+	Skins []skins.InventorySkin `json:"skins"`
 }
 
 type Creds struct {

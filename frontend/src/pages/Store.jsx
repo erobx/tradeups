@@ -2,7 +2,7 @@
 
 function Store() {
   return (
-    <div className="flex flex-col items-center mt-5">
+    <div className="flex flex-col items-center text-center gap-2 mt-5">
       <h1 className="font-bold text-3xl">Welcome to the Store!</h1>
       <p>
         Here you can buy crates of Consumer, Industrial, and Mil-Spec quality

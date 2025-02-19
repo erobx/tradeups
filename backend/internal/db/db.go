@@ -7,6 +7,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/erobx/tradeups/backend/pkg/common"
 	"github.com/erobx/tradeups/backend/pkg/skins"
 	"github.com/erobx/tradeups/backend/pkg/user"
 	"github.com/jackc/pgx/v5"
@@ -72,6 +73,45 @@ func (p *PostgresDB) GetHash(email string) (id, hash string, err error) {
 	}
 
 	return id, hash, err
+}
+
+// {id: 0, name: "M4A4 | Howl", wear: "Factory New", rarity: "Contraband", float: 0.01, isStatTrak: true, imgSrc: "/m4a4-howl.png"},
+func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	var inv user.Inventory
+	var items []skins.InventorySkin
+	q :=`
+	select us.id, us.skin_float, us.skin_price, us.is_stattrak, us.wear,
+	s.name, s.rarity, s.collection, s.image_key
+	from user_skins us
+		join skins s on s.id = us.skin_id
+	where us.user_id=$1
+	`
+	rows, err := p.conn.Query(context.Background(), q, userId)
+	if err != nil {
+		return inv, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var s skins.InventorySkin
+		var imageKey string
+
+		err := rows.Scan(&s.Id, &s.SkinFloat, &s.SkinPrice, &s.IsStatTrak, &s.Wear, &s.Name, &s.Rarity, &s.Collection, &imageKey)
+		if err != nil {
+			return inv, err
+		}
+
+		imgSrc := common.GetPresignedURL(imageKey)
+		s.ImageSrc = imgSrc
+		
+		items = append(items, s)
+	}
+
+	inv.Skins = items
+	return inv, rows.Err()
 }
 
 func AddSkin(s *skins.Skin) error {

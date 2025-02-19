@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"log"
-	"os"
 	"time"
 
 	"github.com/erobx/tradeups/backend/internal/db"
+	"github.com/erobx/tradeups/backend/pkg/common"
 	"github.com/erobx/tradeups/backend/pkg/user"
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
@@ -48,10 +48,15 @@ func Login(p *db.PostgresDB) fiber.Handler {
 		}
 
 		//createAndSetJWT(c)
+		jwt, err := newJWT(id)
+		if err != nil {
+			c.SendStatus(500)
+		}
+
 		log.Printf("User %s logged in\n", creds.Email)
-		jwt, _ := newJWT(id)
 		return c.JSON(fiber.Map{
 			"jwt": jwt,
+			"userId": id,
 		})
 	}
 }
@@ -95,43 +100,43 @@ func Register(p *db.PostgresDB) fiber.Handler {
 		}
 		newUser.Hash = string(hashed)
 
+		if err := createAndSetJWT(c, newUser.Uuid.String()); err != nil {
+			return c.SendStatus(500)
+		}
+
 		if err := p.CreateUser(newUser); err != nil {
 			log.Printf("Error: %s\n", err.Error())
 			return c.SendStatus(500)
 		}
-
-		createAndSetJWT(c, newUser.Uuid.String())
-		log.Printf("New user %s registed\n", newUser.Username)
+		
+		log.Printf("New user %s registered\n", newUser.Username)
 		return c.SendStatus(200)
 	}
 }
 
-func createAndSetJWT(c fiber.Ctx, id string) {
-		// new user created, make new jwt
-		jwt, err := newJWT(id)
-		if err != nil {
-			log.Printf("JWT not signed: %v\n", err)
-		}
+func createAndSetJWT(c fiber.Ctx, id string) error {
+	// new user created, make new jwt
+	jwt, err := newJWT(id)
+	if err != nil {
+		log.Printf("JWT not signed: %v\n", err)
+		return err
+	}
 
-		// set cookie for jwt
-		cookie := createJWTCookie(jwt)
-		c.Cookie(cookie)
-}
-
-func readPrivKey() ([]byte, error) {
-	b, err := os.ReadFile(os.Getenv("PRIVATE_KEY"))
-	return b, err
+	// set cookie for jwt
+	cookie := createJWTCookie(jwt)
+	c.Cookie(cookie)
+	return nil
 }
 
 func newJWT(id string) (string, error) {
 	claims := jwt.RegisteredClaims{
-		ExpiresAt: jwt.NewNumericDate(time.Now().Add(15 * time.Minute)),
+		ExpiresAt: jwt.NewNumericDate(time.Now().Add(99999 * time.Hour)),
 		IssuedAt: jwt.NewNumericDate(time.Now()),
 		Subject: id,
 		Issuer: "tradeups",
 	}
 
-	keyBytes, err := readPrivKey()
+	keyBytes, err := common.ReadPrivKey()
 	if err != nil {
 		return "", err
 	}

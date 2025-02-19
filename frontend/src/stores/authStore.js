@@ -5,6 +5,8 @@ const useAuthStore = create((set) => ({
     setLoggedIn: (loggedIn) => set(() => ({ loggedIn })),
 }))
 
+
+
 const useAuth = () => {
     const { loggedIn, setLoggedIn } = useAuthStore()
     return { loggedIn, setLoggedIn }

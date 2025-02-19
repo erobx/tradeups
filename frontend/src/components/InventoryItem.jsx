@@ -1,10 +1,9 @@
 import RarityBadge from "./RarityBadge"
 import StatTrakBadge from "./StatTrakBadge"
-import { bgMap, borderMap } from "../constants/rarity"
+import { borderMap } from "../constants/rarity"
 
-function InventoryItem({ id, name, rarity, isStatTrak, imgSrc }) {
+function InventoryItem({ id, name, rarity, wear, price, isStatTrak, imgSrc }) {
   const borderColor = borderMap[rarity]
-  const bgColor = bgMap[rarity]
 
   const testClick = () => {
     console.log(id)
@@ -15,7 +14,7 @@ function InventoryItem({ id, name, rarity, isStatTrak, imgSrc }) {
       className={`card card-xs w-48 bg-base-200 shadow-md hover:border-r-4 ${borderColor}`}
       onClick={testClick}
     >
-      <h1 className="ml-1.5">$0.00</h1>
+      <h1 className="text-primary ml-1.5">${price}</h1>
       <figure>
         <img
           alt={name}

@@ -2,10 +2,12 @@ import { useState } from "react"
 import { submitLogin } from "../api/auth"
 import { useNavigate } from "react-router"
 import useAuth from "../stores/authStore"
+import useUserId from "../stores/userStore"
 
 function Login() {
     const navigate = useNavigate()
     const { loggedIn, setLoggedIn } = useAuth()
+    const { userId, setUserId } = useUserId()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -16,9 +18,11 @@ function Login() {
         setLoading(true)
 
         try {
-            const status = await submitLogin(email, password)
-            if (status === 200) {
+            const data = await submitLogin(email, password)
+            if (data) {
                 setLoggedIn(true)
+                localStorage.setItem("userId", data.userId)
+                setUserId(data.userId)
                 navigate("/dashboard")
                 resetForm()
             } else {

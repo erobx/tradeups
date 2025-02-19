@@ -8,9 +8,11 @@ import Tradeup from "./components/Tradeup"
 import { useEffect, useState } from "react"
 import useAuth from "./stores/authStore"
 import Store from "./pages/Store"
+import useUserId from "./stores/userStore"
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuth()
+  const { userId, setUserId } = useUserId()
   const [loading, setLoading] = useState(true)
 
   const loadUser = async () => {
@@ -19,6 +21,11 @@ function App() {
       if (jwt) {
           console.log("jwt exists")
           setLoggedIn(true)
+      }
+
+      const userId = localStorage.getItem("userId")
+      if (userId) {
+        setUserId(userId)
       }
 
       setLoading(false)

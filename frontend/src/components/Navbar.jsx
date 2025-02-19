@@ -23,7 +23,7 @@ function Navbar() {
     {loggedIn && (
         <div className="navbar-end mr-1">
           <Balance />
-          <Link to="/store" className="btn btn-ghost text-xl">Store</Link>
+          <Link to="/store" className="btn btn-ghost text-lg">Store</Link>
           <Link to="/dashboard" className="btn btn-ghost text-lg">Dashboard</Link>
           <Dropdown
             setLoggedIn={setLoggedIn}

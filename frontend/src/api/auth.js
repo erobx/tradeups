@@ -1,5 +1,5 @@
 /*
- * API Functions for Auth
+ * API functions for authentication
  *
  */
 
@@ -48,7 +48,7 @@ export const submitLogin = async (email, password) => {
         const data = await res.json()
         const jwt = data.jwt
         localStorage.setItem("jwt", jwt)
-        return res.status
+        return data
     } catch (error) {
         console.error('Error:', error)
     }
