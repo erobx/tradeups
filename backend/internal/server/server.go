@@ -77,6 +77,7 @@ func (s *Server) MapHandlers() error {
 
 	api := s.fiber.Group("/api")
 	api.Get("/users/:id/inventory", handlers.GetInventory(s.db))
+	api.Get("/tradeups", handlers.GetActiveTradeups(s.db))
 
 	return nil
 }

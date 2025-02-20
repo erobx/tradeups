@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sync"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/erobx/tradeups/backend/pkg/common"
 	"github.com/erobx/tradeups/backend/pkg/skins"
+	"github.com/erobx/tradeups/backend/pkg/tradeups"
 	"github.com/erobx/tradeups/backend/pkg/user"
 	"github.com/jackc/pgx/v5"
 )
@@ -84,10 +86,14 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 	var items []skins.InventorySkin
 	q :=`
 	select us.id, us.skin_float, us.skin_price, us.is_stattrak, us.wear,
-	s.name, s.rarity, s.collection, s.image_key
+		s.name, s.rarity, s.collection, s.image_key
 	from user_skins us
-		join skins s on s.id = us.skin_id
+	join skins s on s.id = us.skin_id
 	where us.user_id=$1
+		and not exists (
+			select 1 from tradeup_skins ts
+			where ts.user_skins_id = us.id
+		)
 	`
 	rows, err := p.conn.Query(context.Background(), q, userId)
 	if err != nil {
@@ -112,6 +118,68 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 
 	inv.Skins = items
 	return inv, rows.Err()
+}
+
+func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+
+	var activeTradeups []tradeups.Tradeup
+	q := `
+	select t.id tradeup_id, t.rarity, t.status,
+	coalesce(
+		jsonb_agg(
+			distinct jsonb_build_object(
+				'username', u.username,
+				'avatar', u.avatar_key
+			) 
+		) filter (where u.id is not null), '[]'
+	)as players,
+	coalesce(
+		json_agg(
+			json_build_object(
+				'inventoryId', ts.user_skins_id,
+				'skinPrice', us.skin_price,
+				'imageSrc', s.image_key
+			)
+		) filter (where ts.user_skins_id is not null), '[]'
+	) as skins
+	from tradeups t
+	left join tradeup_skins ts on t.id = ts.tradeup_id
+	left join user_skins us on ts.user_skins_id = us.id
+	left join skins s on us.skin_id = s.id
+	left join users u on us.user_id = u.id
+	where t.status = 'Active'
+	group by t.id, t.rarity, t.status
+	`
+	rows, err := p.conn.Query(context.Background(), q)
+	if err != nil {
+		return activeTradeups, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var t tradeups.Tradeup
+		var playersJson, skinsJson []byte
+		err := rows.Scan(&t.Id, &t.Rarity, &t.Status, &playersJson, &skinsJson)
+		if err != nil {
+			return activeTradeups, err
+		}
+
+		err = json.Unmarshal(playersJson, &t.Players)
+		if err != nil {
+			return activeTradeups, err
+		}
+
+		err = json.Unmarshal(skinsJson, &t.Skins)
+		if err != nil {
+			return activeTradeups, err
+		}
+
+		activeTradeups = append(activeTradeups, t)
+	}
+
+	return activeTradeups, rows.Err()
 }
 
 func AddSkin(s *skins.Skin) error {

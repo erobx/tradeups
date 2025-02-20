@@ -65,8 +65,8 @@ function RecentTradeups() {
   ]
 
   const rows = [
-    {id: 0, rarity: "Consumer", status: "Active", skins: skins1, value: 35.21},
-    {id: 1, rarity: "Industrial", status: "Completed", skins: skins2, value: 121.01},
+    {id: 1, rarity: "Consumer", status: "Active", skins: skins1, value: 35.21},
+    {id: 2, rarity: "Industrial", status: "Completed", skins: skins2, value: 121.01},
   ]
 
   return (

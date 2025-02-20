@@ -1,31 +1,12 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import InventoryItem from "./InventoryItem"
 import EmptyItem from "./EmptyItem"
-import useUserId from "../stores/userStore"
-import { getInventory } from "../api/inventory"
+import useInventory from "../stores/inventoryStore"
 
 function Inventory() {
-  const { userId, setUserId } = useUserId()
-  const [items, setItems] = useState([])
+  const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [loading, setLoading] = useState(false)
-
-  const loadItems = async (userId) => {
-    setLoading(true)
-    const jwt = localStorage.getItem("jwt")
-    try {
-      const data = await getInventory(jwt, userId)
-      setItems(data.skins)
-    } catch (error) {
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
-  }
   
-  useEffect(() => {
-    loadItems(userId)
-  }, [userId])
-
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -34,7 +15,7 @@ function Inventory() {
     )
   }
 
-  if (items.length == 0) {
+  if (inventory.length == 0) {
     return (
       <div>
         <EmptyItem />
@@ -44,7 +25,7 @@ function Inventory() {
 
   return (
     <div className="grid grid-flow-row lg:grid-cols-7 gap-4 md:grid-cols-2">
-      {items.map((item, index) => (
+      {inventory.map((item, index) => (
         <div key={index} className="item">
           <InventoryItem 
             id={item.id}

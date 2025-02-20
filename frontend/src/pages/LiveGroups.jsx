@@ -4,10 +4,10 @@ import TradeupRow from "../components/TradeupRow"
 function LiveGroups() {
   const liveTradeups = useState([])
   const tempT = [
-    {id: 0},
     {id: 1},
     {id: 2},
     {id: 3},
+    {id: 4},
   ]
 
   return (

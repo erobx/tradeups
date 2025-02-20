@@ -80,7 +80,7 @@ function TradeupRow({ id }) {
 
   const tempPlayers = [
     {id: 0, initials: "ER", imgSrc: ""},
-    {id: 0, initials: "JD", imgSrc: ""}
+    {id: 1, initials: "JD", imgSrc: ""}
   ]
 
   const dividerColor = dividerMap[rarity]

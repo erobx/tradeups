@@ -22,6 +22,12 @@ type InventorySkin struct {
 	ImageSrc string `json:"imageSrc"`
 }
 
+type TradeupSkin struct {
+	InventoryId int `json:"inventoryId"`
+	SkinPrice float64 `json:"skinPrice"`
+	ImageSrc string `json:"imageSrc"`
+}
+
 func NewSkin(name, rarity, collection string, minFloat, maxFloat float64) Skin {
 	return Skin{
 		Name:       name,

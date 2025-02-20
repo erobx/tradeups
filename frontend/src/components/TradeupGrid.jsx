@@ -29,19 +29,19 @@ function GridItem({ name, wear, price, isStatTrak, imgSrc }) {
   )
 }
 
-function EmptyGridItem() {
+function EmptyGridItem({ rarity }) {
   return (
     <div className="card card-xs w-48 bg-base-200 shadow-md m-0.5">
       <div className="card-body items-center">
         <div className="card-actions mt-12">
-          <InventoryModal />
+          <InventoryModal rarity={rarity} />
         </div>
       </div>
     </div>
   )
 }
 
-function TradeupGrid() {
+function TradeupGrid({ rarity }) {
   const skins = [
     {id: 0, name: "AUG | Wings", wear: "Battle-Scarred", price: 10.12, isStatTrak: true, imgSrc: "/aug-wings.png"},
     {id: 1, name: "AUG | Wings", wear: "Battle-Scarred", price: 10.12, isStatTrak: false, imgSrc: "/aug-wings.png"},
@@ -64,7 +64,7 @@ function TradeupGrid() {
       ))}
       {skins.length < 10 && (
         Array.from({ length: 10 - skins.length }).map((_, index) => (
-          <EmptyGridItem key={`empty-${index}`} />
+          <EmptyGridItem key={`empty-${index}`} rarity={rarity} />
       )))}
     </div>
   )
