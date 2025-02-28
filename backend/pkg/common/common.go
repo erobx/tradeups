@@ -22,7 +22,7 @@ func ReadPubKey() ([]byte, error) {
 }
 
 func GetPresignedURL(imageKey string) string {
-	bucketName := "tradeups-images"
+	bucketName := os.Getenv("S3_BUCKET")
 	endPoint := os.Getenv("S3_ENDPOINT")
 	accessKeyId := os.Getenv("S3_ACCESS_KEY_ID")
 	accessKey := os.Getenv("S3_ACCESS_KEY")
@@ -43,6 +43,7 @@ func GetPresignedURL(imageKey string) string {
 
 	presignClient := s3.NewPresignClient(client)
 
+    imageKey = "guns/ak/" + imageKey
 	res, err := presignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
 		Bucket: &bucketName,
 		Key:    aws.String(imageKey),

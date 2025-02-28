@@ -47,6 +47,7 @@ func GetInventory(p *db.PostgresDB) fiber.Handler {
 
 		inv, err := p.GetInventory(jwtUserId)
 		if err != nil {
+            log.Println(err)
 			return c.SendStatus(500)
 		}
 

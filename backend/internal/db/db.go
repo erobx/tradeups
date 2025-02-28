@@ -85,14 +85,14 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 	var inv user.Inventory
 	var items []skins.InventorySkin
 	q :=`
-	select us.id, us.skin_float, us.skin_price, us.is_stattrak, us.wear,
+	select i.id, i.wear_str, i.wear_num, i.price, i.is_stattrak,
 		s.name, s.rarity, s.collection, s.image_key
-	from user_skins us
-	join skins s on s.id = us.skin_id
-	where us.user_id=$1
+	from inventory i
+	join skins s on s.id = i.skin_id
+	where i.user_id=$1
 		and not exists (
-			select 1 from tradeup_skins ts
-			where ts.user_skins_id = us.id
+			select 1 from tradeups_skins ts
+			where ts.inv_id = i.id
 		)
 	`
 	rows, err := p.conn.Query(context.Background(), q, userId)
@@ -105,7 +105,7 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 		var s skins.InventorySkin
 		var imageKey string
 
-		err := rows.Scan(&s.Id, &s.SkinFloat, &s.SkinPrice, &s.IsStatTrak, &s.Wear, &s.Name, &s.Rarity, &s.Collection, &imageKey)
+		err := rows.Scan(&s.Id, &s.Wear, &s.SkinFloat, &s.SkinPrice, &s.IsStatTrak, &s.Name, &s.Rarity, &s.Collection, &imageKey)
 		if err != nil {
 			return inv, err
 		}
@@ -134,21 +134,21 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 				'avatar', u.avatar_key
 			) 
 		) filter (where u.id is not null), '[]'
-	)as players,
+	) as players,
 	coalesce(
 		json_agg(
 			json_build_object(
-				'inventoryId', ts.user_skins_id,
-				'skinPrice', us.skin_price,
+				'inventoryId', ts.inv_id,
+				'price', i.price,
 				'imageSrc', s.image_key
 			)
-		) filter (where ts.user_skins_id is not null), '[]'
+		) filter (where ts.inv_id is not null), '[]'
 	) as skins
 	from tradeups t
-	left join tradeup_skins ts on t.id = ts.tradeup_id
-	left join user_skins us on ts.user_skins_id = us.id
-	left join skins s on us.skin_id = s.id
-	left join users u on us.user_id = u.id
+	left join tradeups_skins ts on t.id = ts.tradeup_id
+	left join inventory i on ts.inv_id = i.id
+	left join skins s on i.skin_id = s.id
+	left join users u on i.user_id = u.id
 	where t.status = 'Active'
 	group by t.id, t.rarity, t.status
 	`
