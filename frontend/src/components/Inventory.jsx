@@ -7,7 +7,7 @@ function Inventory() {
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const processedInventory = usePresignedUrls(inventory)
   
-  if (processedInventory.length == 0) {
+  if (processedInventory.length === 0) {
     return (
       <div>
         <EmptyItem />
@@ -24,7 +24,7 @@ function Inventory() {
             name={item.name}
             rarity={item.rarity}
             wear={item.wear}
-            price={item.skinPrice}
+            price={item.price}
             isStatTrak={item.isStatTrak}
             imgSrc={item.imageSrc}
           />

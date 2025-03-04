@@ -13,7 +13,7 @@ type Skin struct {
 type InventorySkin struct {
 	Id int `json:"id"`
 	SkinFloat float64 `json:"skinFloat"`
-	SkinPrice float64 `json:"skinPrice"`
+	Price float64 `json:"price"`
 	IsStatTrak bool `json:"isStatTrak"`
 	Name string `json:"name"`
 	Wear string `json:"wear"`
@@ -24,7 +24,7 @@ type InventorySkin struct {
 
 type TradeupSkin struct {
 	InventoryId int `json:"inventoryId"`
-	SkinPrice float64 `json:"skinPrice"`
+	Price float64 `json:"price"`
 	ImageSrc string `json:"imageSrc"`
 }
 
@@ -38,11 +38,11 @@ func NewSkin(name, rarity, collection string, minFloat, maxFloat float64) Skin {
 	}
 }
 
-func NewInventorySkin(id int, sf, sp float64, isSt bool, n, w, r, col, imgSrc string) InventorySkin {
+func NewInventorySkin(id int, sf, p float64, isSt bool, n, w, r, col, imgSrc string) InventorySkin {
 	return InventorySkin{
 		Id: id,
 		SkinFloat: sf,
-		SkinPrice: sp,
+		Price: p,
 		IsStatTrak: isSt,
 		Name: n,
 		Wear: w,

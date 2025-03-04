@@ -3,14 +3,14 @@ package tradeups
 import "github.com/erobx/tradeups/backend/pkg/skins"
 
 type Tradeup struct {
-    Id int
-    Rarity string
-    Status string
-    Skins []skins.TradeupSkin
-    Players []Player
+    Id int `json:"id"`
+    Rarity string `json:"rarity"`
+    Status string `json:"status"`
+    Skins []skins.TradeupSkin `json:"skins"`
+    Players []Player `json:"players"`
 }
 
 type Player struct {
-    Username string
-    Avatar string
+    Username string `json:"username"`
+    Avatar string `json:"avatar"`
 }

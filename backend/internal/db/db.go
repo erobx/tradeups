@@ -7,7 +7,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/erobx/tradeups/backend/pkg/common"
 	"github.com/erobx/tradeups/backend/pkg/skins"
 	"github.com/erobx/tradeups/backend/pkg/tradeups"
 	"github.com/erobx/tradeups/backend/pkg/url"
@@ -99,12 +98,11 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 		var s skins.InventorySkin
 		var imageKey string
 
-		err := rows.Scan(&s.Id, &s.Wear, &s.SkinFloat, &s.SkinPrice,
+		err := rows.Scan(&s.Id, &s.Wear, &s.SkinFloat, &s.Price,
                         &s.IsStatTrak, &s.Name, &s.Rarity, &s.Collection, &imageKey)
 		if err != nil {
 			return inv, err
 		}
-        imageKey = common.PrefixKey(imageKey)
         imageKeys = append(imageKeys, imageKey)
         tempItems[imageKey] = &s
 	}
@@ -118,6 +116,10 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
         }
     }
 
+    if len(items) == 0 {
+        return inv, fmt.Errorf("items empty")
+    }
+
 	inv.Skins = items
 	return inv, rows.Err()
 }
@@ -125,7 +127,7 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 	var activeTradeups []tradeups.Tradeup
 	q := `
-	select t.id tradeup_id, t.rarity, t.status,
+	select t.id tradeup_id, t.rarity, t.current_status,
 	coalesce(
 		jsonb_agg(
 			distinct jsonb_build_object(
@@ -148,8 +150,8 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 	left join inventory i on ts.inv_id = i.id
 	left join skins s on i.skin_id = s.id
 	left join users u on i.user_id = u.id
-	where t.status = 'Active'
-	group by t.id, t.rarity, t.status
+	where t.current_status = 'Active'
+	group by t.id, t.rarity, t.current_status
 	`
 	rows, err := p.conn.Query(context.Background(), q)
 	if err != nil {

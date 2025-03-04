@@ -33,7 +33,7 @@ export function usePresignedUrls(inventory) {
             }
 
             return item
-        })
+        })    
 
         setCache(newCache)
         setProcessedInventory(updatedInventory)

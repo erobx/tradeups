@@ -10,7 +10,7 @@ function InfoPanel({ count }) {
       <div className="card-body justify-center ml-4">
         <div className="flex flex-col items-center">
           <div className="card-title font-bold text-xl">
-            Skins in Pool:
+            Skin Count:
           </div>
           <div className="card-title font-bold text-accent text-xl">
             {count}
@@ -72,11 +72,8 @@ function ButtonPanel({ tradeupId }) {
   )
 }
 
-function TradeupRow({ id }) {
-  const [rarity, setRarity] = useState("Covert")
-  const [countItems, setCountItems] = useState(10)
-  const [totalPrice, setTotalPrice] = useState(1.69)
-  const [players, setPlayers] = useState([])
+function TradeupRow({ id, players, rarity, skins, status }) {
+  const [totalPrice, setTotalPrice] = useState(0)
 
   const tempPlayers = [
     {id: 0, initials: "ER", imgSrc: ""},
@@ -85,20 +82,20 @@ function TradeupRow({ id }) {
 
   const dividerColor = dividerMap[rarity]
 
-  const getTradeup = async () => {
-    
-  }
-
   useEffect(() => {
-    // getTradeup()
-  },[])
+    let sum = totalPrice
+    skins.forEach(skin => {
+      sum += parseFloat(skin.price)
+    })
+    setTotalPrice(sum)
+  }, [])
 
   return (
     <div className="join bg-base-300 border-6 border-base-200 items-center lg:w-3/4 rounded-md">
-      <InfoPanel className="join-item" count={countItems} />
+      <InfoPanel className="join-item" count={skins.length} />
       <div className={`divider divider-horizontal ${dividerColor}`}></div>
 
-      <ItemCarousel className="join-item" />
+      <ItemCarousel className="join-item" skins={skins} />
       <div className="divider divider-horizontal divider-secondary"></div>
 
       <DetailsPanel className="join-item" total={totalPrice} />

@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/credentials"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/erobx/tradeups/backend/pkg/common"
 )
 
 type PresignedUrlManager struct {
@@ -76,7 +77,7 @@ func (m *PresignedUrlManager) GetUrls(imageKeys []string) map[string]string {
                 defer wg.Done()
                 out, err := m.client.PresignGetObject(context.Background(), &s3.GetObjectInput{
                     Bucket: &m.bucket,
-                    Key: &key,
+                    Key: aws.String(common.PrefixKey(key)),
                 })
                 log.Println("Generated new presigned url for:", key)
                 if err == nil {

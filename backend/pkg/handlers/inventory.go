@@ -47,7 +47,9 @@ func GetInventory(p *db.PostgresDB) fiber.Handler {
 		inv, err := p.GetInventory(jwtUserId)
 		if err != nil {
             log.Println(err)
-			return c.SendStatus(500)
+			return c.JSON(fiber.Map{
+                "skins": "empty",
+            })
 		}
 
 		return c.JSON(inv)

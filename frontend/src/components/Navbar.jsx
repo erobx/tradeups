@@ -9,8 +9,8 @@ function Navbar() {
   return (
     <div className="navbar border-b bg-base-200 shawdow-sm">
       <div className="navbar-start">
-        <Link to="/" className="btn btn-ghost text-xl">TradeUps</Link>
-        <Link to="/tradeups" className="btn btn-ghost text-xl">Live Groups</Link>
+        <Link to="/" className="btn btn-ghost text-xl">Home</Link>
+        <Link to="/tradeups" className="btn btn-ghost text-xl">Active Trade Ups</Link>
       </div>
 
     {!loggedIn && (

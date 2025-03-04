@@ -22,7 +22,7 @@ function InventoryItem({ id, name, rarity, wear, price, isStatTrak, imgSrc }) {
         />
       </figure>
       <div className="card-body items-center">
-        <h1 className="card-title text-sm">{name}</h1>
+        <h1 className="card-title text-xs">{name}</h1>
         <h2 className="card-title text-xs">({wear})</h2>
         <div className="flex gap-2">
           <div>
