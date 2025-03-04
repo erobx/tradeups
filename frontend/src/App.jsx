@@ -22,16 +22,15 @@ function App() {
     // check if user is logged in
     const jwt = localStorage.getItem("jwt")
     if (jwt) {
-        console.log("jwt exists")
-        setLoggedIn(true)
+      console.log("jwt exists")
+      setLoggedIn(true)
+      const userId = localStorage.getItem("userId")
+      if (userId) {
+        setUserId(userId)
+        loadItems(userId)
+      }
     }
 
-    const userId = localStorage.getItem("userId")
-    if (userId) {
-      setUserId(userId)
-    }
-
-    loadItems(userId)
     setLoading(false)
   }
 

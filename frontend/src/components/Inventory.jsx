@@ -1,21 +1,13 @@
-import { useState } from "react"
 import InventoryItem from "./InventoryItem"
 import EmptyItem from "./EmptyItem"
 import useInventory from "../stores/inventoryStore"
+import { usePresignedUrls } from "../hooks/usePresignedUrls"
 
 function Inventory() {
   const { inventory, setInventory, addItem, removeItem } = useInventory()
-  const [loading, setLoading] = useState(false)
+  const processedInventory = usePresignedUrls(inventory)
   
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="loading loading-spinner loading-xl"></div>
-      </div>
-    )
-  }
-
-  if (inventory.length == 0) {
+  if (processedInventory.length == 0) {
     return (
       <div>
         <EmptyItem />
@@ -25,7 +17,7 @@ function Inventory() {
 
   return (
     <div className="grid grid-flow-row lg:grid-cols-7 gap-4 md:grid-cols-2">
-      {inventory.map((item, index) => (
+      {processedInventory.map((item, index) => (
         <div key={index} className="item">
           <InventoryItem 
             id={item.id}

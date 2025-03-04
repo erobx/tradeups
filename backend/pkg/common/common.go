@@ -1,14 +1,8 @@
 package common
 
 import (
-	"context"
-	"log"
 	"os"
-
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+    "strings"
 )
 
 func ReadPrivKey() ([]byte, error) {
@@ -21,36 +15,12 @@ func ReadPubKey() ([]byte, error) {
 	return b, err
 }
 
-func GetPresignedURL(imageKey string) string {
-	bucketName := os.Getenv("S3_BUCKET")
-	endPoint := os.Getenv("S3_ENDPOINT")
-	accessKeyId := os.Getenv("S3_ACCESS_KEY_ID")
-	accessKey := os.Getenv("S3_ACCESS_KEY")
+func PrefixKey(key string) string {
+    before, _, found := strings.Cut(key, "-")
+    if !found {
+        return key
+    }
 
-	cfg, err := config.LoadDefaultConfig(context.TODO(),
-		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(accessKeyId, accessKey, "")),
-		config.WithRegion("auto"),
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	config.WithRequestChecksumCalculation(0)
-	config.WithResponseChecksumValidation(0)
-
-	client := s3.NewFromConfig(cfg, func(o *s3.Options) {
-		o.BaseEndpoint = aws.String(endPoint)
-	})
-
-	presignClient := s3.NewPresignClient(client)
-
-    imageKey = "guns/ak/" + imageKey
-	res, err := presignClient.PresignGetObject(context.TODO(), &s3.GetObjectInput{
-		Bucket: &bucketName,
-		Key:    aws.String(imageKey),
-	})
-	if err != nil {
-		log.Fatal("Couldn't get presigned URL for GetObject")
-	}
-
-	return res.URL
+    key = "guns/" + before + "/" + key
+    return key
 }

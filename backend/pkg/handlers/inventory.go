@@ -11,7 +11,6 @@ import (
 )
 
 // {id: 0, name: "M4A4 | Howl", wear: "Factory New", rarity: "Contraband", float: 0.01, isStatTrak: true, imgSrc: "/m4a4-howl.png"},
-
 func GetInventory(p *db.PostgresDB) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		urlUserId := c.Params("id")
