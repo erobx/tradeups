@@ -1,8 +1,11 @@
+import { outlineMap } from "../constants/rarity"
 import StatTrakBadge from "./StatTrakBadge"
 
-function ModalItem({ name, wear, isStatTrak, imgSrc, price }) {
+function ModalItem({ rarity, name, wear, isStatTrak, imgSrc, price }) {
+  const outlineColor = outlineMap[rarity]
+
   return (
-    <div className="card card-md w-48 h-48 bg-base-300">
+    <div className={`card card-md w-56 h-48 bg-base-300 hover:outline-4 ${outlineColor}`}>
       <h1 className="text-sm font-bold text-primary ml-1.5 mt-0.5">${price}</h1>
       <figure>
         <img

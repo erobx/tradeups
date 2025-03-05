@@ -6,7 +6,7 @@ function Tradeup() {
   const params = useParams()
   const tradeupId = params.tradeupId
   const status = "Active"
-  const [rarity, setRarity] = ""
+  const [rarity, setRarity] = "Consumer"
 
   const fetchTradeup = async () => {
 
