@@ -63,32 +63,32 @@ body, html {
     color: black;
 }
 
-.border-consumer {
-    border-color: var(--consumer);
+.outline-consumer {
+   outline-color: var(--consumer);
 }
 
-.border-industrial {
-    border-color: var(--industrial);
+.outline-industrial {
+   outline-color: var(--industrial);
 }
 
-.border-milspec {
-    border-color: var(--milspec);
+.outline-milspec {
+   outline-color: var(--milspec);
 }
 
-.border-restricted {
-    border-color: var(--restricted);
+.outline-restricted {
+   outline-color: var(--restricted);
 }
 
-.border-classified {
-    border-color: var(--classified);
+.outline-classified {
+   outline-color: var(--classified);
 }
 
-.border-covert {
-    border-color: var(--covert);
+.outline-covert {
+   outline-color: var(--covert);
 }
 
-.border-contraband {
-    border-color: var(--contraband);
+.outline-contraband {
+   outline-color: var(--contraband);
 }
 
 .bg-consumer {

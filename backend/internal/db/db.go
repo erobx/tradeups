@@ -88,7 +88,7 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
             WHERE ts.inv_id = i.id
         )
     )
-	select i.id, i.wear_str, i.wear_num, i.price, i.is_stattrak,
+    select i.id, i.wear_str, i.wear_num, i.price, i.is_stattrak, to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS'),
 		s.name, s.rarity, s.collection, s.image_key,
         count(*) over (partition by s.image_key) as image_group_count
 	from inventory i
@@ -114,7 +114,7 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
         var imageGroupCount int
 
 		err := rows.Scan(&s.Id, &s.Wear, &s.SkinFloat, &s.Price,
-                        &s.IsStatTrak, &s.Name, &s.Rarity, &s.Collection,
+                        &s.IsStatTrak, &s.CreatedAt, &s.Name, &s.Rarity, &s.Collection,
                         &imageKey, &imageGroupCount)
 		if err != nil {
 			return inv, err

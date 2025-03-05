@@ -20,6 +20,7 @@ type InventorySkin struct {
 	Rarity string `json:"rarity"`
 	Collection string `json:"collection"`
 	ImageSrc string `json:"imageSrc"`
+    CreatedAt string `json:"createdAt"`
 }
 
 type TradeupSkin struct {

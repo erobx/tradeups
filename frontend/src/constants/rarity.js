@@ -26,14 +26,14 @@ export const badgeMap = {
     "Contraband": "badge-contraband",
 }
 
-export const borderMap = {
-    "Consumer": "border-consumer",
-    "Industrial": "border-industrial",
-    "Mil-Spec": "border-milspec",
-    "Restricted": "border-restricted",
-    "Classified": "border-classified",
-    "Covert": "border-covert",
-    "Contraband": "border-contraband",
+export const outlineMap = {
+    "Consumer": "outline-consumer",
+    "Industrial": "outline-industrial",
+    "Mil-Spec": "outline-milspec",
+    "Restricted": "outline-restricted",
+    "Classified": "outline-classified",
+    "Covert": "outline-covert",
+    "Contraband": "outline-contraband",
 }
 
 export const bgMap = {

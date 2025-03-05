@@ -6,11 +6,11 @@ import Dashboard from "../components/Dashboard"
 
 function DashboardPage() {
   return (
-    <div className="flex gap-5">
+    <div className="flex gap-2">
       <div>
         <DashboardDrawer />
       </div>
-      <div className="mt-4">
+      <div className="mt-2">
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/inventory" element={<Inventory />} />
