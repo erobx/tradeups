@@ -6,6 +6,14 @@ export const wears = [
     "Factory New",
 ]
 
+export const wearOrder = [
+    "Factory New",
+    "Minimal Wear",
+    "Field-Tested",
+    "Well-Worn",
+    "Battle-Scarred"
+]
+
 export const wearsToAbbr = {
     "Battle-Scarred": "BS",
     "Well-Worn": "WW",

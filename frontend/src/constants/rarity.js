@@ -1,3 +1,21 @@
+export const rarities = [
+    "Consumer",
+    "Industrial",
+    "Mil-Spec",
+    "Restricted",
+    "Classified",
+    "Covert"
+]
+
+export const rarityOrder = [
+    "Covert",
+    "Classified",
+    "Restricted",
+    "Mil-Spec",
+    "Industrial",
+    "Consumer"
+]
+
 export const badgeMap = {
     "Consumer": "badge-consumer",
     "Industrial": "badge-industrial",

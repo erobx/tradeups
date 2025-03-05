@@ -3,6 +3,12 @@
     themes: light --default, dark --prefersdark, dim;
 }
 
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
 :root {
     --consumer: #b0c3d9;
     --industrial: #5e98d9;

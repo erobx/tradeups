@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 	"time"
 
 	"github.com/erobx/tradeups/backend/pkg/skins"
@@ -77,8 +78,19 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
     var imageKeys []string
 
 	q :=`
+    WITH unique_image_skins AS (
+        SELECT DISTINCT s.image_key
+        FROM inventory i 
+        JOIN skins s ON s.id = i.skin_id
+        WHERE i.user_id = $1
+        AND NOT EXISTS (
+            SELECT 1 FROM tradeups_skins ts
+            WHERE ts.inv_id = i.id
+        )
+    )
 	select i.id, i.wear_str, i.wear_num, i.price, i.is_stattrak,
-		s.name, s.rarity, s.collection, s.image_key
+		s.name, s.rarity, s.collection, s.image_key,
+        count(*) over (partition by s.image_key) as image_group_count
 	from inventory i
 	join skins s on s.id = i.skin_id
 	where i.user_id=$1
@@ -86,34 +98,48 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 			select 1 from tradeups_skins ts
 			where ts.inv_id = i.id
 		)
+    order by s.image_key, i.wear_str
 	`
+
 	rows, err := p.conn.Query(context.Background(), q, userId)
 	if err != nil {
 		return inv, err
 	}
 	defer rows.Close()
 
-    tempItems := make(map[string]*skins.InventorySkin)
+    tempItems := make(map[string][]skins.InventorySkin)
 	for rows.Next() {
 		var s skins.InventorySkin
 		var imageKey string
+        var imageGroupCount int
 
 		err := rows.Scan(&s.Id, &s.Wear, &s.SkinFloat, &s.Price,
-                        &s.IsStatTrak, &s.Name, &s.Rarity, &s.Collection, &imageKey)
+                        &s.IsStatTrak, &s.Name, &s.Rarity, &s.Collection,
+                        &imageKey, &imageGroupCount)
 		if err != nil {
 			return inv, err
 		}
-        imageKeys = append(imageKeys, imageKey)
-        tempItems[imageKey] = &s
+
+        if !slices.Contains(imageKeys, imageKey) {
+            imageKeys = append(imageKeys, imageKey)
+        }
+
+        tempItems[imageKey] = append(tempItems[imageKey], s)
 	}
 
     urlMap := p.urlManager.GetUrls(imageKeys)
 
-    for imageKey, item := range tempItems {
-        if url, exists := urlMap[imageKey]; exists {
-            item.ImageSrc = url
-            items = append(items, *item)
+    for imageKey, skinGroup := range tempItems {
+        url, exists := urlMap[imageKey]
+        if !exists {
+            continue
         }
+
+        for i := range skinGroup {
+            skinGroup[i].ImageSrc = url
+        }
+
+        items = append(items, skinGroup...)
     }
 
     if len(items) == 0 {

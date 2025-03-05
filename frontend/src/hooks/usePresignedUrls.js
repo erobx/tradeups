@@ -11,6 +11,10 @@ export function setCache(cache) {
     localStorage.setItem(URL_CACHE_KEY, JSON.stringify(cache))
 }
 
+/*
+ * @returns {string[]}
+ * 
+ */
 export function usePresignedUrls(inventory) {
     const [processedInventory, setProcessedInventory] = useState(inventory)
 
