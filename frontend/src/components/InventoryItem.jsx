@@ -2,17 +2,12 @@ import RarityBadge from "./RarityBadge"
 import StatTrakBadge from "./StatTrakBadge"
 import { outlineMap } from "../constants/rarity"
 
-function InventoryItem({ id, name, rarity, wear, price, isStatTrak, imgSrc }) {
+function InventoryItem({ name, rarity, wear, price, isStatTrak, imgSrc }) {
   const outlineColor = outlineMap[rarity]
-
-  const testClick = () => {
-    console.log(id)
-  }
 
   return (
     <div
       className={`card card-xs w-52 bg-base-200 shadow-md hover:outline-4 ${outlineColor}`}
-      onClick={testClick}
     >
       <h1 className="text-primary ml-1.5">${price}</h1>
       <figure>

@@ -70,10 +70,9 @@ function Inventory() {
   return (
     <div className="flex">
       <div className="grid grid-flow-row lg:grid-cols-7 gap-2 md:grid-cols-2">
-        {currentItems.map((item, index) => (
-          <div key={index} className="item">
+        {currentItems.map((item) => (
+          <div key={item.id} className="item">
             <InventoryItem 
-              id={item.id}
               name={item.name}
               rarity={item.rarity}
               wear={item.wear}

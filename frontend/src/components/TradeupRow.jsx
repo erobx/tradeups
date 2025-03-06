@@ -83,12 +83,12 @@ function TradeupRow({ id, players, rarity, skins, status }) {
   const dividerColor = dividerMap[rarity]
 
   useEffect(() => {
-    let sum = totalPrice
+    let sum = 0
     skins.forEach(skin => {
       sum += parseFloat(skin.price)
     })
-    setTotalPrice(sum)
-  }, [])
+    setTotalPrice(parseFloat(sum).toFixed(2))
+  }, [skins])
 
   return (
     <div className="join bg-base-300 border-6 border-base-200 items-center lg:w-3/4 rounded-md">

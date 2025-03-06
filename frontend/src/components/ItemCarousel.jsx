@@ -35,6 +35,7 @@ function ItemCarousel({ skins }) {
         skins.map((skin, index) => (
           <div key={index} className="carousel-item">
             <img
+              loading="eager"
               width={imgWidth}
               height={imgHeight}
               src={skin.imageSrc}

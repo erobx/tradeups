@@ -240,3 +240,22 @@ func AddSkin(s *skins.Skin) error {
 
 	return nil
 }
+
+func (p *PostgresDB) TestSSE() ([]int, error) {
+    q := `
+    select t.id from tradeups t
+    `
+    
+    var ids []int
+    rows, _ := p.conn.Query(context.Background(), q)
+    for rows.Next() {
+        var id int
+        err := rows.Scan(&id)
+        if err != nil {
+            return ids, err
+        }
+        ids = append(ids, id)
+    }
+
+    return ids, nil
+}
