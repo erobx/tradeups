@@ -64,7 +64,7 @@ func (s *Server) UseMiddleware() error {
 		AllowOrigins: []string{"http://localhost:5173"},
 		AllowCredentials: true,
 		AllowHeaders: []string{"Origin", "Authorization", "Content-Type", "Accept"},
-		AllowMethods: []string{"OPTIONS"},
+        AllowMethods: []string{"PUT", "DELETE", "OPTIONS"},
 	}))
 	return nil
 }
@@ -73,12 +73,17 @@ func (s *Server) MapHandlers() error {
 	auth := s.fiber.Group("/auth")
 	auth.Post("/register", handlers.Register(s.db))
 	auth.Post("/login", handlers.Login(s.db))
-	auth.Get("/users/:id", handlers.GetUser(s.db))
+	auth.Get("/users/:userId", handlers.GetUser(s.db))
 
 	api := s.fiber.Group("/api")
-	api.Get("/users/:id/inventory", handlers.GetInventory(s.db))
-	api.Get("/tradeups", handlers.GetActiveTradeups(s.db))
-    api.Get("/sse", handlers.SSE(s.db))
+	api.Get("/users/:userId/inventory", handlers.GetInventory(s.db))
+    api.Delete("/users/:userId/inventory/:invId", handlers.DeleteSkin(s.db))
+
+    api.Get("/tradeups", handlers.GetActiveTradeupsSSE(s.db))
+    api.Get("/tradeups/:tradeupId", handlers.GetTradeupSSE(s.db))
+    api.Put("/tradeups/add", handlers.AddSkinToTradeup(s.db))
+
+    api.Post("/store/buy", handlers.BuyCrate(s.db))
 
 	return nil
 }

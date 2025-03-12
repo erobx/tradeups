@@ -10,15 +10,12 @@ import Store from "./pages/Store"
 import useAuth from "./stores/authStore"
 import useUserId from "./stores/userStore"
 import useInventory from "./stores/inventoryStore"
-import useTradeups from "./stores/tradeupsStore"
 import { getInventory } from "./api/inventory"
-import { getTradeups } from "./api/tradeups"
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuth()
   const { userId, setUserId } = useUserId()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
-  const { tradeups, setTradeups, addTradeup, removeTradeup } = useTradeups()
   const [loading, setLoading] = useState(true)
 
   const loadUser = async () => {
@@ -46,33 +43,8 @@ function App() {
       if (data.skins === "empty") {
         setInventory([])
       } else {
-        const newData = {
-          ...data,
-          skins: data.skins.map(skin => ({
-            ...skin,
-            price: parseFloat(skin.price).toFixed(2),
-          }))
-        }
-        setInventory(newData.skins)
+        setInventory(data.skins)
       }
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  const loadTradeups = async () => {
-    try {
-      const data = await getTradeups()
-      
-      const newData = data.map(tradeup => ({
-        ...tradeup,
-        skins: tradeup.skins.map(skin => ({
-          ...skin,
-          price: parseFloat(skin.price).toFixed(2),
-        })),
-      }))
-
-      setTradeups(newData)
     } catch (error) {
       console.error(error)
     }
@@ -80,7 +52,6 @@ function App() {
 
   useEffect(() => {
     loadUser()
-    loadTradeups()
   }, [])
 
   if (loading) return null

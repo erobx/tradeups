@@ -5,6 +5,37 @@ import { usePresignedUrls } from "../hooks/usePresignedUrls"
 import { useMemo, useState } from "react"
 import { rarityOrder } from "../constants/rarity"
 import { wearOrder } from "../constants/wear"
+import { deleteSkin } from "../api/inventory"
+import useUserId from "../stores/userStore"
+
+function Modal({ invId, removeItem }) {
+  const { userId, setUserId } = useUserId()
+
+  const onClick = async () => {
+    const jwt = localStorage.getItem("jwt")
+    const res = await deleteSkin(jwt, userId, invId)
+    if (res.status !== 204) {
+      return
+    }
+
+    // update ui
+    removeItem(invId)
+
+    console.log("deleted: ", invId)
+  }
+
+  return (
+    <dialog id={`modal_${invId}`} className="modal">
+      <div className="modal-box max-h-3xl">
+        <h3 className="font-bold text-lg mb-1">Details</h3>
+        <button className="btn btn-error" onClick={onClick}>Delete skin</button>
+      </div>
+      <form method="dialog" className="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+  )
+}
 
 function Inventory() {
   const { inventory, setInventory, addItem, removeItem } = useInventory()
@@ -71,7 +102,7 @@ function Inventory() {
     <div className="flex">
       <div className="grid grid-flow-row lg:grid-cols-7 gap-2 md:grid-cols-2">
         {currentItems.map((item) => (
-          <div key={item.id} className="item">
+          <div key={item.id} className="item" onClick={() => document.getElementById(`modal_${item.id}`).showModal()}>
             <InventoryItem 
               name={item.name}
               rarity={item.rarity}
@@ -79,6 +110,10 @@ function Inventory() {
               price={item.price}
               isStatTrak={item.isStatTrak}
               imgSrc={item.imageSrc}
+            />
+            <Modal
+              invId={item.id}
+              removeItem={removeItem}
             />
           </div>
         ))}

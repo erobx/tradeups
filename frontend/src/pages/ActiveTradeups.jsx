@@ -5,7 +5,7 @@ function ActiveTradeups() {
   const [tradeups, setTradeups] = useState([])
 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:8080/api/sse")
+    const eventSource = new EventSource("http://localhost:8080/api/tradeups")
 
     eventSource.onopen = () => {
       console.log("SSE connection opened successfully")
@@ -17,18 +17,7 @@ function ActiveTradeups() {
 
     eventSource.onmessage = (event) => {
       const newData = JSON.parse(event.data)
-
-      const formattedData = newData.map(tradeup => {
-        return {
-          ...tradeup,
-          skins: tradeup.skins.map(skin => ({
-            ...skin,
-            price: parseFloat(skin.price).toFixed(2)
-          }))
-        }
-      })
-
-      setTradeups(formattedData)
+      setTradeups(newData)
     }
     return () => {
       console.log("Closing SSE connection")
@@ -40,9 +29,8 @@ function ActiveTradeups() {
     <div className="flex flex-col items-center gap-2 mt-3">
       <h1 className="text-warning text-3xl font-bold">Active Trade Ups</h1>
       <div>Filter placeholder</div>
-      {console.log("Attempting to render tradeups:", tradeups)}
       {tradeups && tradeups.length > 0 ? (
-        tradeups.map((t, index) => (
+        tradeups.map(t => (
           <TradeupRow
             key={t.id}
             id={t.id}

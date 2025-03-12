@@ -29,6 +29,8 @@ function InventoryItem({ name, rarity, wear, price, isStatTrak, imgSrc }) {
           {isStatTrak && <StatTrakBadge />}
         </div>
       </div>
+
+      
     </div>
   )
 }

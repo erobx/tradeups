@@ -24,15 +24,7 @@ function Login() {
       if (data.skins === "empty") {
         setInventory([])
       } else {
-        const newData = {
-          ...data,
-          skins: data.skins.map(skin => ({
-            ...skin,
-            price: parseFloat(skin.price).toFixed(2),
-          }))
-        }
-        setInventory(newData.skins)
-        console.log(newData)
+        setInventory(data.skins)
       }
     } catch (error) {
       console.error(error)

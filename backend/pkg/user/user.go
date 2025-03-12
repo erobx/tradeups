@@ -17,11 +17,11 @@ type Inventory struct {
 	Skins []skins.InventorySkin `json:"skins"`
 }
 
-type Creds struct {
+type RegisteredUserPayload struct {
 	Email string `json:"email"`
 	Password string `json:"password"`
 }
 
-type CheckEmail struct {
+type EmailPayload struct {
 	Email string `json:"email"`
 }

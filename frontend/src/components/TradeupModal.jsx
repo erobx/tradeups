@@ -1,22 +1,24 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ModalItem from "./ModalItem"
 import useInventory from "../stores/inventoryStore"
 
-function InventoryModal({ rarity }) {
+function TradeupModal({ tradeupId, rarity }) {
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [currentPage, setCurrentPage] = useState(1)
+  const [currentItems, setCurrentItems] = useState([])
   const itemsPerPage = 15
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const currentItems = inventory.slice(startIndex, endIndex)
   const totalPages = Math.ceil(inventory.length / itemsPerPage)
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
-  const addSkin = () => {
-
-  }
+  useEffect(() => {
+    var tempItems = inventory.filter(i => i.rarity === rarity)
+    tempItems = tempItems.slice(startIndex, endIndex)
+    setCurrentItems(tempItems)
+  }, [rarity, inventory])
 
   return (
     <div>
@@ -25,15 +27,17 @@ function InventoryModal({ rarity }) {
         <div className="modal-box max-w-7xl max-h-3xl">
           <h3 className="font-bold text-lg mb-1">Showing all available skins...</h3>
           <div className="grid grid-cols-5 grid-rows-3 gap-2">
-            {currentItems.map((s, index) => (
+            {currentItems.map(s => (
               <ModalItem
-                key={index}
-                rarity={rarity}
+                key={s.id}
+                invId={s.id}
+                tradeupId={tradeupId}
                 name={s.name}
                 wear={s.wear}
                 price={s.price}
                 isStatTrak={s.isStatTrak}
                 imgSrc={s.imageSrc}
+                removeItem={removeItem}
               />
             ))}
           </div>
@@ -51,4 +55,4 @@ function InventoryModal({ rarity }) {
   )
 }
 
-export default InventoryModal
+export default TradeupModal

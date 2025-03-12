@@ -15,11 +15,16 @@ import (
 
 func GetUser(p *db.PostgresDB) fiber.Handler {
 	return func(c fiber.Ctx) error {
-		accessToken := c.Cookies("JWT")
-		if accessToken == "" {
-			log.Println("No access token")
-			return c.SendStatus(401)
-		}
+		//accessToken := c.Cookies("JWT")
+		//if accessToken == "" {
+		//	log.Println("No access token")
+		//	return c.SendStatus(401)
+		//}
+
+        _, err := common.ValidateHeaders(c)
+        if err != nil {
+            return c.SendStatus(400)
+        }
 
 		return c.JSON(fiber.Map{
 			"loggedIn": true,
@@ -30,7 +35,7 @@ func GetUser(p *db.PostgresDB) fiber.Handler {
 // {"email":"","password":""}
 func Login(p *db.PostgresDB) fiber.Handler {
 	return func(c fiber.Ctx) error {
-		creds := new(user.Creds)
+		creds := new(user.RegisteredUserPayload)
 		if err := c.Bind().Body(creds); err != nil {
 			return err
 		}

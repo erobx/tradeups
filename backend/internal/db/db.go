@@ -88,9 +88,8 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
             WHERE ts.inv_id = i.id
         )
     )
-    select i.id, i.wear_str, i.wear_num, i.price, i.is_stattrak, to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS'),
-		s.name, s.rarity, s.collection, s.image_key,
-        count(*) over (partition by s.image_key) as image_group_count
+    select i.id, i.wear_str, i.wear_num, round(cast(i.price as numeric),2), i.is_stattrak, to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS'),
+		s.name, s.rarity, s.collection, s.image_key
 	from inventory i
 	join skins s on s.id = i.skin_id
 	where i.user_id=$1
@@ -111,11 +110,10 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
 	for rows.Next() {
 		var s skins.InventorySkin
 		var imageKey string
-        var imageGroupCount int
 
 		err := rows.Scan(&s.Id, &s.Wear, &s.SkinFloat, &s.Price,
                         &s.IsStatTrak, &s.CreatedAt, &s.Name, &s.Rarity, &s.Collection,
-                        &imageKey, &imageGroupCount)
+                        &imageKey)
 		if err != nil {
 			return inv, err
 		}
@@ -166,7 +164,7 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 		json_agg(
 			json_build_object(
 				'inventoryId', ts.inv_id,
-				'price', i.price,
+				'price', (select round(cast(i.price as numeric),2)),
 				'imageSrc', s.image_key
 			)
 		) filter (where ts.inv_id is not null), '[]'
@@ -236,26 +234,187 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 	return activeTradeups, nil 
 }
 
-func AddSkin(s *skins.Skin) error {
+func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
+    var t tradeups.Tradeup
 
-	return nil
-}
-
-func (p *PostgresDB) TestSSE() ([]int, error) {
     q := `
-    select t.id from tradeups t
+    select t.id tradeup_id, t.rarity, t.current_status,
+	coalesce(
+		jsonb_agg(
+			distinct jsonb_build_object(
+				'username', u.username,
+				'avatar', u.avatar_key
+			) 
+		) filter (where u.id is not null), '[]'
+	) as players,
+	coalesce(
+		json_agg(
+			json_build_object(
+				'inventoryId', ts.inv_id,
+				'price', (select round(cast(i.price as numeric),2)),
+                'name', s.name,
+                'wear', i.wear_str,
+                'skinFloat', i.wear_num,
+                'isStatTrak', i.is_stattrak,
+				'imageSrc', s.image_key,
+                'createdAt', to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS')
+			)
+		) filter (where ts.inv_id is not null), '[]'
+	) as skins
+	from tradeups t
+	left join tradeups_skins ts on t.id = ts.tradeup_id
+	left join inventory i on ts.inv_id = i.id
+	left join skins s on i.skin_id = s.id
+	left join users u on i.user_id = u.id
+	where t.id = $1
+    group by t.id
     `
-    
-    var ids []int
-    rows, _ := p.conn.Query(context.Background(), q)
-    for rows.Next() {
-        var id int
-        err := rows.Scan(&id)
-        if err != nil {
-            return ids, err
-        }
-        ids = append(ids, id)
+
+    var playersJson, skinsJson []byte
+    var imageKeys []string
+    row := p.conn.QueryRow(context.Background(), q, id)
+    err := row.Scan(&t.Id, &t.Rarity, &t.Status, &playersJson, &skinsJson)
+    if err != nil {
+        return t, err
     }
 
-    return ids, nil
+    err = json.Unmarshal(playersJson, &t.Players)
+    if err != nil {
+        return t, err
+    }
+
+    err = json.Unmarshal(skinsJson, &t.Skins)
+    if err != nil {
+        return t, err
+    }
+
+    for _, skin := range t.Skins {
+        if skin.ImageSrc != "" {
+            imageKeys = append(imageKeys, skin.ImageSrc)
+        }
+    }
+
+    urlMap := p.urlManager.GetUrls(imageKeys)
+
+    for i := range t.Skins {
+        if url, exists := urlMap[t.Skins[i].ImageSrc]; exists {
+            t.Skins[i].ImageSrc = url
+        }
+    }
+
+    return t, nil
+}
+
+func (p *PostgresDB) DeleteSkin(userId, skinId string) error {
+    q := "delete from inventory where user_id=$1 and id=$2"
+    tag, err := p.conn.Exec(context.Background(), q, userId, skinId)
+    if err != nil {
+        return err
+    }
+
+    if !tag.Delete() {
+        return fmt.Errorf("Not a delete statement")
+    }
+
+    return nil
+}
+
+func (p *PostgresDB) TradeupIsFull(tradeupId string) error {
+    var numSkins int
+    q := "select count(tradeup_id) from tradeups_skins where tradeup_id=$1"
+    row := p.conn.QueryRow(context.Background(), q, tradeupId)
+    err := row.Scan(&numSkins)
+    if err != nil {
+        return err
+    }
+
+    if numSkins > 10 {
+        return fmt.Errorf("Tradeup full")
+    }
+    return nil
+}
+
+func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error {
+    // if the user actually owns the skin to add
+    var exists bool
+    q := "select exists(select 1 from inventory where user_id=$1 and id=$2)"
+    row := p.conn.QueryRow(context.Background(), q, userId, invId)
+    err := row.Scan(&exists)
+    if err != nil {
+        return err
+    }
+    
+    if !exists {
+        return fmt.Errorf("User does not own that item")
+    }
+
+    // finally add the skin
+    q = "insert into tradeups_skins values($1,$2)"
+    tag, err := p.conn.Exec(context.Background(), q, tradeupId, invId)
+    if err != nil {
+        return err
+    }
+
+    if !tag.Insert() {
+        return fmt.Errorf("Not an insert statement")
+    }
+
+    return nil
+}
+
+func (p *PostgresDB) BuyCrate(userId, name string, count int) ([]skins.InventorySkin, error) {
+    var newSkins []skins.InventorySkin
+    var imageKeys []string
+
+    q := `
+    SELECT oc.id, oc.skin_id, oc.wear_str, oc.wear_num, round(cast(oc.price as numeric),2), oc.is_stattrak, to_char(oc.created_at, 'YYYY/MM/DD HH12:MI:SS'),
+            s.name, s.rarity, s.collection, s.image_key
+    FROM open_crate(
+        (SELECT id FROM users WHERE id=$1),
+        $2,
+        $3
+    ) as oc
+    join skins s on oc.skin_id = s.id
+    `
+    rows, err := p.conn.Query(context.Background(), q, userId, name, count)
+    if err != nil {
+        return newSkins, err
+    }
+
+    tempItems := make(map[string][]skins.InventorySkin)
+	for rows.Next() {
+		var s skins.InventorySkin
+        var skinId int
+		var imageKey string
+
+		err := rows.Scan(&s.Id, &skinId, &s.Wear, &s.SkinFloat, &s.Price,
+                        &s.IsStatTrak, &s.CreatedAt, &s.Name, &s.Rarity, &s.Collection,
+                        &imageKey)
+		if err != nil {
+			return newSkins, err
+		}
+
+        if !slices.Contains(imageKeys, imageKey) {
+            imageKeys = append(imageKeys, imageKey)
+        }
+
+        tempItems[imageKey] = append(tempItems[imageKey], s)
+	}
+
+    urlMap := p.urlManager.GetUrls(imageKeys)
+
+    for imageKey, skinGroup := range tempItems {
+        url, exists := urlMap[imageKey]
+        if !exists {
+            continue
+        }
+
+        for i := range skinGroup {
+            skinGroup[i].ImageSrc = url
+        }
+
+        newSkins = append(newSkins, skinGroup...)
+    }
+
+	return newSkins, rows.Err()
 }

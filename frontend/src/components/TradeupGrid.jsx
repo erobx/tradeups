@@ -1,15 +1,15 @@
 import StatTrakBadge from "./StatTrakBadge"
-import InventoryModal from "./InventoryModal"
+import TradeupModal from "./TradeupModal"
 
 function GridItem({ name, wear, price, isStatTrak, imgSrc }) {
-  const testClick = () => {
+  const onClick = async () => {
 
   }
 
   return (
     <div
-      className="card card-xs w-48 bg-base-200 shadow-md m-0.5"
-      onClick={testClick}
+      className="card card-xs w-48 bg-base-200 shadow-md m-0.5 hover:outline-4 outline-info"
+      onClick={onClick}
     >
       <h1 className="ml-1.5">${price}</h1>
       <figure>
@@ -29,42 +29,34 @@ function GridItem({ name, wear, price, isStatTrak, imgSrc }) {
   )
 }
 
-function EmptyGridItem({ rarity }) {
+function EmptyGridItem({ tradeupId, rarity }) {
   return (
     <div className="card card-xs w-48 bg-base-200 shadow-md m-0.5">
       <div className="card-body items-center">
         <div className="card-actions mt-12">
-          <InventoryModal rarity={rarity} />
+          <TradeupModal tradeupId={tradeupId} rarity={rarity} />
         </div>
       </div>
     </div>
   )
 }
 
-function TradeupGrid({ rarity }) {
-  const skins = [
-    {id: 0, name: "AUG | Wings", wear: "Battle-Scarred", price: 10.12, isStatTrak: true, imgSrc: "/aug-wings.png"},
-    {id: 1, name: "AUG | Wings", wear: "Battle-Scarred", price: 10.12, isStatTrak: false, imgSrc: "/aug-wings.png"},
-    {id: 2, name: "AUG | Wings", wear: "Battle-Scarred", price: 10.12, isStatTrak: true, imgSrc: "/aug-wings.png"},
-    {id: 3, name: "AUG | Wings", wear: "Battle-Scarred", price: 10.12, isStatTrak: false, imgSrc: "/aug-wings.png"},
-    {id: 4, name: "AUG | Wings", wear: "Battle-Scarred", price: 10.12, isStatTrak: false, imgSrc: "/aug-wings.png"},
-  ]
-
+function TradeupGrid({ tradeupId, rarity, skins }) {
   return (
     <div className="grid grid-cols-5 grid-rows-2 rounded mt-5 gap-2">
-      {skins.map((s, index) => (
+      {skins.map(s => (
         <GridItem
-          key={index}
+          key={s.inventoryId}
           name={s.name}
           wear={s.wear}
           price={s.price}
           isStatTrak={s.isStatTrak}
-          imgSrc={s.imgSrc}
+          imgSrc={s.imageSrc}
         />
       ))}
       {skins.length < 10 && (
         Array.from({ length: 10 - skins.length }).map((_, index) => (
-          <EmptyGridItem key={`empty-${index}`} rarity={rarity} />
+          <EmptyGridItem key={`empty-${index}`} tradeupId={tradeupId} rarity={rarity} />
       )))}
     </div>
   )

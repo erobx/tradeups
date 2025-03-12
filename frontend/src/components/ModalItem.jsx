@@ -1,11 +1,24 @@
-import { outlineMap } from "../constants/rarity"
 import StatTrakBadge from "./StatTrakBadge"
+import { addSkinToTradeup } from "../api/tradeups"
 
-function ModalItem({ rarity, name, wear, isStatTrak, imgSrc, price }) {
-  const outlineColor = outlineMap[rarity]
+function ModalItem({ invId, tradeupId, name, wear, isStatTrak, imgSrc, price, removeItem }) {
+
+  const addSkin = async () => {
+    console.log(`adding skin ${invId} to tradeup ${tradeupId}...`)
+    const jwt = localStorage.getItem("jwt")
+    try {
+      const res = await addSkinToTradeup(jwt, invId, tradeupId)
+      if (res.status !== 201) {
+        return
+      }
+      removeItem(invId)
+    } catch (error) {
+      console.error("Error: ", error)
+    }
+  }
 
   return (
-    <div className={`card card-md w-56 h-48 bg-base-300 hover:outline-4 ${outlineColor}`}>
+    <div className={`card card-md w-56 h-48 bg-base-300 hover:border-4`} onClick={addSkin}>
       <h1 className="text-sm font-bold text-primary ml-1.5 mt-0.5">${price}</h1>
       <figure>
         <img

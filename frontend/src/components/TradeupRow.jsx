@@ -10,7 +10,7 @@ function InfoPanel({ count }) {
       <div className="card-body justify-center ml-4">
         <div className="flex flex-col items-center">
           <div className="card-title font-bold text-xl">
-            Skin Count:
+            Skin Count
           </div>
           <div className="card-title font-bold text-accent text-xl">
             {count}
@@ -25,9 +25,9 @@ function DetailsPanel({ total }) {
   return (
     <div className="card card-sm">
       <div className="card-body justify-center">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center gap-1.5">
           <div className="card-title">
-            Pool Value:
+            Pool Value
           </div>
           <div className="card-title">
             ${total}
@@ -44,7 +44,7 @@ function PlayersPanel({ players }) {
       <div className="card-body justify-center">
         <div className="flex flex-col items-center">
           <div className="card-title">
-            Players:
+            Players
           </div>
           <div className="card-title">
             <AvatarGroup
@@ -66,7 +66,7 @@ function ButtonPanel({ tradeupId }) {
   }
 
   return (
-    <button className="btn btn-soft rounded-md btn-success w-40" onClick={onJoin}>
+    <button className="btn btn-soft rounded-md btn-success w-30 mr-2" onClick={onJoin}>
       Join
     </button>
   )
@@ -91,17 +91,17 @@ function TradeupRow({ id, players, rarity, skins, status }) {
   }, [skins])
 
   return (
-    <div className="join bg-base-300 border-6 border-base-200 items-center lg:w-3/4 rounded-md">
+    <div className="join bg-base-300 border-6 border-base-200 items-center justify-evenly lg:w-3/4 rounded-md">
       <InfoPanel className="join-item" count={skins.length} />
       <div className={`divider divider-horizontal ${dividerColor}`}></div>
 
       <ItemCarousel className="join-item" skins={skins} />
-      <div className="divider divider-horizontal divider-secondary"></div>
+      <div className="divider divider-horizontal divider-info"></div>
 
-      <DetailsPanel className="join-item" total={totalPrice} />
-      <div className="divider divider-horizontal divider-warning"></div>
-
-      <PlayersPanel className="join-item" players={tempPlayers} />
+      <div className="flex items-start">
+        <DetailsPanel className="join-item" total={totalPrice} />
+        <PlayersPanel className="join-item" players={tempPlayers} />
+      </div>
       <div className="divider divider-horizontal divider-primary"></div>
 
       <ButtonPanel className="join-item" tradeupId={id} />
