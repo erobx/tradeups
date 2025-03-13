@@ -47,8 +47,6 @@ export const submitLogin = async (email, password) => {
     try {
         const res = await fetch(baseUrl+"/login", opts)
         const data = await res.json()
-        const jwt = data.jwt
-        localStorage.setItem("jwt", jwt)
         return data
     } catch (error) {
         console.error('Error:', error)
