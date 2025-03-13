@@ -26,7 +26,7 @@ function App() {
       console.log("jwt exists")
       setLoggedIn(true)
       const userData = await getUser(jwt)
-      setUser(userData)
+      setUser(userData.user)
       loadItems(jwt, userData.user.id)
     }
     setLoading(false)

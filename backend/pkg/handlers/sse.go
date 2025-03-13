@@ -57,7 +57,7 @@ func GetTradeupSSE(p *db.PostgresDB) fiber.Handler {
                 for {
                     tradeup, err := p.GetTradeup(id)
                     if err != nil {
-                        log.Println(err)
+                        log.Printf("Error getting tradeup: %v\n", err)
                         return
                     }
 
@@ -68,7 +68,7 @@ func GetTradeupSSE(p *db.PostgresDB) fiber.Handler {
                         log.Printf("Client disconnected!")
                         return
                     }
-                    time.Sleep(2 * time.Second)
+                    time.Sleep(200 * time.Millisecond)
                 }
             })
         }

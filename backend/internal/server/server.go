@@ -90,6 +90,7 @@ func (s *Server) MapHandlers() error {
     tradeups.Get("/", handlers.GetActiveTradeupsSSE(s.db))
     tradeups.Get("/:tradeupId", handlers.GetTradeupSSE(s.db))
     tradeups.Put("/add", handlers.AddSkinToTradeup(s.db), middleware.Protected())
+    tradeups.Delete("/remove", handlers.RemoveSkinFromTradeup(s.db), middleware.Protected())
 
     // Store
     store := api.Group("/store")

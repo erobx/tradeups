@@ -401,6 +401,43 @@ func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error
     return nil
 }
 
+func (p *PostgresDB) IsUsersSkin(userId string, invId int) bool {
+    var exists bool
+    q := "select exists(select 1 from inventory where user_id=$1 and id=$2)"
+    row := p.conn.QueryRow(context.Background(), q, userId, invId)
+    row.Scan(&exists)
+    return exists
+}
+
+func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.InventorySkin, error) {
+    var invSkin skins.InventorySkin
+    var imageKey string
+    q := `
+    with deleted_skin as (
+        delete from tradeups_skins ts
+        where tradeup_id=$1 and inv_id=$2
+        returning inv_id
+    )
+    select i.id, i.wear_str, i.wear_num, round(cast(i.price as numeric),2), i.is_stattrak, to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS'),
+		s.name, s.rarity, s.collection, s.image_key
+    from inventory i
+	join skins s on s.id = i.skin_id
+	where i.id=$3
+    order by s.image_key, i.wear_str
+    `
+    row := p.conn.QueryRow(context.Background(), q, tradeupId, invId, invId)
+    err := row.Scan(&invSkin.Id, &invSkin.Wear, &invSkin.SkinFloat, &invSkin.Price, &invSkin.IsStatTrak, &invSkin.CreatedAt,
+        &invSkin.Name, &invSkin.Rarity, &invSkin.Collection, &imageKey)
+    
+    if err != nil {
+        return invSkin, err
+    }
+
+    urlMap := p.urlManager.GetUrls([]string{imageKey})
+    invSkin.ImageSrc = urlMap[imageKey]
+    return invSkin, err
+}
+
 func (p *PostgresDB) BuyCrate(userId, name string, count int) ([]skins.InventorySkin, error) {
     var newSkins []skins.InventorySkin
     var imageKeys []string

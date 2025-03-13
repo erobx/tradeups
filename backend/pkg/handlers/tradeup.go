@@ -38,10 +38,10 @@ func AddSkinToTradeup(p *db.PostgresDB) fiber.Handler {
             return err
         }
         
-        if count, _ := userCache[jwtUserId]; count > 5 {
-            log.Println("user has added more than 5 skins")
-            return nil
-        }
+        //if count, _ := userCache[jwtUserId]; count > 5 {
+        //    log.Println("user has added more than 5 skins")
+        //    return nil
+        //}
         // check if item user is trying to add belongs to them
         err := p.TradeupIsFull(payload.TradeupId)
         if err != nil {
@@ -56,5 +56,38 @@ func AddSkinToTradeup(p *db.PostgresDB) fiber.Handler {
         }
 		
         return c.SendStatus(201)
+    }
+}
+
+func RemoveSkinFromTradeup(p *db.PostgresDB) fiber.Handler {
+    return func(c fiber.Ctx) error {
+        token := c.Locals("jwt").(*jwt.Token)
+
+        var userId string
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			userId, _ = claims.GetSubject()
+		} else {
+			return c.SendStatus(500)
+		}        
+
+        payload := new(TradeupSkinsPayload)
+        if err := c.Bind().Body(payload); err != nil {
+            log.Println(err)
+            return err
+        }
+
+        // check if item user is trying to remove belongs to them
+        exists := p.IsUsersSkin(userId, payload.InvId)
+        if !exists {
+            return c.SendStatus(fiber.StatusForbidden)
+        }
+
+        returnedSkin, err := p.RemoveSkinFromTradeup(payload.TradeupId, payload.InvId)
+        if err != nil {
+            log.Println(err)
+            return c.SendStatus(500)
+        }
+
+        return c.JSON(returnedSkin)
     }
 }

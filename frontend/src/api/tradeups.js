@@ -1,8 +1,3 @@
-/*
- *
- *
- */
-
 const baseUrl = "http://localhost:8080/api/tradeups"
 
 export const getTradeups = async () => {
@@ -66,4 +61,31 @@ export const addSkinToTradeup = async (jwt, invId, tradeupId) => {
     } catch (error) {
         console.error("Error: ", error)
     }
+}
+
+export const removeSkinFromTradeup = async (jwt, invId, tradeupId) => {
+    const url = baseUrl + "/remove"
+
+    const payload = {
+        invId: invId,
+        tradeupId: tradeupId,
+    }
+
+    const opts = {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + jwt,
+        },
+        body: JSON.stringify(payload),
+    }
+
+    try {
+        const res = await fetch(url, opts)
+        const data = await res.json()
+        return data
+    } catch (error) {
+        console.error(error)
+    }
+
 }
