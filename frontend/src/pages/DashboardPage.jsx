@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router"
 
-import DashboardDrawer from "../components/DashboardDrawer"
-import Inventory from "../components/Inventory"
-import Dashboard from "../components/Dashboard"
+import DashboardDrawer from "../components/Dashboard/DashboardDrawer"
+import Inventory from "../components/Inventory/Inventory"
+import Dashboard from "../components/Dashboard/Dashboard"
 
 function DashboardPage() {
   return (

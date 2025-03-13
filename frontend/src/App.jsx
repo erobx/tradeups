@@ -5,16 +5,16 @@ import LandingPage from "./pages/LandingPage"
 import SignUpLogin from "./pages/SignUpLogin"
 import DashboardPage from "./pages/DashboardPage"
 import ActiveTradeups from "./pages/ActiveTradeups"
-import Tradeup from "./components/Tradeup"
+import Tradeup from "./components/Tradeup/Tradeup"
 import Store from "./pages/Store"
 import useAuth from "./stores/authStore"
-import useUserId from "./stores/userStore"
+import useUser from "./stores/userStore"
 import useInventory from "./stores/inventoryStore"
 import { getInventory } from "./api/inventory"
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuth()
-  const { userId, setUserId } = useUserId()
+  const { user, setUser } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [loading, setLoading] = useState(true)
 
@@ -24,13 +24,8 @@ function App() {
     if (jwt) {
       console.log("jwt exists")
       setLoggedIn(true)
-      const userId = localStorage.getItem("userId")
-      if (userId) {
-        setUserId(userId)
-        loadItems(userId)
-      }
+      // db call to get user
     }
-
     setLoading(false)
   }
 

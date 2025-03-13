@@ -10,8 +10,9 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	
+
 	"github.com/erobx/tradeups/backend/internal/db"
+	"github.com/erobx/tradeups/backend/internal/middleware"
 	"github.com/erobx/tradeups/backend/pkg/handlers"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
@@ -70,20 +71,29 @@ func (s *Server) UseMiddleware() error {
 }
 
 func (s *Server) MapHandlers() error {
+    // Auth
 	auth := s.fiber.Group("/auth")
 	auth.Post("/register", handlers.Register(s.db))
 	auth.Post("/login", handlers.Login(s.db))
-	auth.Get("/users/:userId", handlers.GetUser(s.db))
 
 	api := s.fiber.Group("/api")
-	api.Get("/users/:userId/inventory", handlers.GetInventory(s.db))
-    api.Delete("/users/:userId/inventory/:invId", handlers.DeleteSkin(s.db))
 
-    api.Get("/tradeups", handlers.GetActiveTradeupsSSE(s.db))
-    api.Get("/tradeups/:tradeupId", handlers.GetTradeupSSE(s.db))
-    api.Put("/tradeups/add", handlers.AddSkinToTradeup(s.db))
+    // User
+    users := api.Group("/users")
+    users.Get("/", handlers.GetUser(s.db), middleware.Protected())
+	users.Get("/:userId", handlers.GetUser(s.db), middleware.Protected())
+	users.Get("/:userId/inventory", handlers.GetInventory(s.db), middleware.Protected())
+    users.Delete("/:userId/inventory/:invId", handlers.DeleteSkin(s.db), middleware.Protected())
 
-    api.Post("/store/buy", handlers.BuyCrate(s.db))
+    // Tradeups
+    tradeups := api.Group("/tradeups")
+    tradeups.Get("/", handlers.GetActiveTradeupsSSE(s.db))
+    tradeups.Get("/:tradeupId", handlers.GetTradeupSSE(s.db))
+    tradeups.Put("/add", handlers.AddSkinToTradeup(s.db), middleware.Protected())
+
+    // Store
+    store := api.Group("/store")
+    store.Post("/buy", handlers.BuyCrate(s.db), middleware.Protected())
 
 	return nil
 }

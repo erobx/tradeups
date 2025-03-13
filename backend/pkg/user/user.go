@@ -13,6 +13,15 @@ type User struct {
 	Hash     string    `json:"hash"`
 }
 
+type UserData struct {
+    Id string `json:"id"`
+    Username string `json:"username"`
+    Email string `json:"email"`
+    AvatarSrc string `json:"avatarSrc"`
+    RefreshTokenVersion int `json:"refreshTokenVersion"`
+    CreatedAt string `json:"createdAt"`
+}
+
 type Inventory struct {
 	Skins []skins.InventorySkin `json:"skins"`
 }

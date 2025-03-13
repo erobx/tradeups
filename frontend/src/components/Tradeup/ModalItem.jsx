@@ -1,5 +1,5 @@
-import StatTrakBadge from "./StatTrakBadge"
-import { addSkinToTradeup } from "../api/tradeups"
+import StatTrakBadge from "../StatTrakBadge"
+import { addSkinToTradeup } from "../../api/tradeups"
 
 function ModalItem({ invId, tradeupId, name, wear, isStatTrak, imgSrc, price, removeItem }) {
 

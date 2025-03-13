@@ -54,10 +54,26 @@ func (p *PostgresDB) FindUsername(username string) (bool, error) {
 	return exists, nil
 }
 
-func (p *PostgresDB) CreateUser(u *user.User) error {
-	q := "insert into users(id, username, email, hash, created_at) values($1,$2,$3,$4,$5)"
-	_, err := p.conn.Exec(context.Background(), q, u.Uuid, u.Username, u.Email, u.Hash, time.Now())
-	return err
+func (p *PostgresDB) CreateUser(u *user.User) (user.UserData, error) {
+    var userData user.UserData
+    var avatarKey string
+	q := `
+    insert into users(id, username, email, hash, created_at) values($1,$2,$3,$4,$5)
+    returning id, username, email, avatar_key, refresh_token_version,
+    to_char(created_at, 'YYYY/MM/DD HH12:MI:SS')
+    `
+	row := p.conn.QueryRow(context.Background(), q, u.Uuid, u.Username, u.Email, u.Hash, time.Now())
+    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt)
+
+    if avatarKey != "" {
+        urlMap := p.urlManager.GetUrls([]string{avatarKey})
+        if key, ok := urlMap[avatarKey]; ok {
+            avatarKey = key
+        }
+    }
+    userData.AvatarSrc = avatarKey
+
+	return userData, err
 }
 
 func (p *PostgresDB) GetHash(email string) (id, hash string, err error) {
@@ -69,6 +85,28 @@ func (p *PostgresDB) GetHash(email string) (id, hash string, err error) {
 	}
 
 	return id, hash, err
+}
+
+func (p *PostgresDB) GetUser(id string) (user.UserData, error) {
+    var userData user.UserData
+    var avatarKey string
+    q := `
+    select id, username, email, avatar_key, refresh_token_version,
+    to_char(created_at, 'YYYY/MM/DD HH12:MI:SS') from users where
+    id = $1
+    `
+    row := p.conn.QueryRow(context.Background(), q, id)
+    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt)
+
+    if avatarKey != "" {
+        urlMap := p.urlManager.GetUrls([]string{avatarKey})
+        if key, ok := urlMap[avatarKey]; ok {
+            avatarKey = key
+        }
+    }
+    userData.AvatarSrc = avatarKey
+
+	return userData, err
 }
 
 // {id: 0, name: "M4A4 | Howl", wear: "Factory New", rarity: "Contraband", float: 0.01, isStatTrak: true, imgSrc: "/m4a4-howl.png"},
@@ -251,6 +289,7 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
 		json_agg(
 			json_build_object(
 				'inventoryId', ts.inv_id,
+                'userId', u.id,
 				'price', (select round(cast(i.price as numeric),2)),
                 'name', s.name,
                 'wear', i.wear_str,

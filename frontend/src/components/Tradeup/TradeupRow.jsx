@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
-import { dividerMap } from "../constants/rarity"
-import ItemCarousel from "./ItemCarousel"
-import AvatarGroup from "./AvatarGroup"
+import { dividerMap } from "../../constants/rarity"
+import ItemCarousel from "../ItemCarousel"
+import AvatarGroup from "../AvatarGroup"
 
 function InfoPanel({ count }) {
   return (

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import TradeupRow from "../components/TradeupRow"
+import TradeupRow from "../components/Tradeup/TradeupRow"
 
 function ActiveTradeups() {
   const [tradeups, setTradeups] = useState([])

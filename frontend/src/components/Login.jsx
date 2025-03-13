@@ -2,22 +2,20 @@ import { useState } from "react"
 import { submitLogin } from "../api/auth"
 import { useNavigate } from "react-router"
 import useAuth from "../stores/authStore"
-import useUserId from "../stores/userStore"
 import useInventory from "../stores/inventoryStore"
 import { getInventory } from "../api/inventory"
+import useUser from "../stores/userStore"
 
 function Login() {
   const navigate = useNavigate()
   const { loggedIn, setLoggedIn } = useAuth()
-  const { userId, setUserId } = useUserId()
+  const { user, setUser } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const loadItems = async (userId) => {
-    const jwt = localStorage.getItem("jwt")
-
+  const loadItems = async (jwt, userId) => {
     try {
       const data = await getInventory(jwt, userId)
 
@@ -32,27 +30,27 @@ function Login() {
   }
 
   const handleSubmit = async (e) => {
-      if (loading) return
-      e.preventDefault()
-      setLoading(true)
+    if (loading) return
+    e.preventDefault()
+    setLoading(true)
 
-      try {
-        const data = await submitLogin(email, password)
-        if (data) {
-          setLoggedIn(true)
-          localStorage.setItem("userId", data.userId)
-          setUserId(data.userId)
-          loadItems(data.userId)
-          navigate("/dashboard")
-          resetForm()
-        } else {
-          console.error("Login failed. Please check your credentials.")
-        }
-      } catch (error) {
-          console.error("Error during login:", error)
-      } finally {
-          setLoading(false)
+    try {
+      const data = await submitLogin(email, password)
+      if (data) {
+        setLoggedIn(true)
+        localStorage.setItem("jwt", data.JWT)
+        setUser(data.user)
+        loadItems(data.JWT, data.user.id)
+        navigate("/dashboard")
+        resetForm()
+      } else {
+        console.error("Login failed. Please check your credentials.")
       }
+    } catch (error) {
+        console.error("Error during login:", error)
+    } finally {
+        setLoading(false)
+    }
   }
 
   const resetForm = () => {

@@ -25,6 +25,7 @@ type InventorySkin struct {
 
 type TradeupSkin struct {
 	InventoryId int `json:"inventoryId"`
+    UserId string `json:"userId"`
 	Price float64 `json:"price"`
     Name string `json:"name"`
     Wear string `json:"wear"`

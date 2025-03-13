@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/erobx/tradeups/backend/internal/db"
-    "github.com/erobx/tradeups/backend/pkg/common"
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -16,10 +15,7 @@ type CratePayload struct {
 
 func BuyCrate(p *db.PostgresDB) fiber.Handler {
     return func(c fiber.Ctx) error {
-        token, err := common.ValidateHeaders(c)
-        if err != nil {
-            return err
-        }
+        token := c.Locals("jwt").(*jwt.Token)
 
 		var jwtUserId string
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {

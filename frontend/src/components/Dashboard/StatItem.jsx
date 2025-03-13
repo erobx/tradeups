@@ -1,5 +1,5 @@
-import RarityBadge from "./RarityBadge"
-import StatTrakBadge from "./StatTrakBadge"
+import RarityBadge from "../RarityBadge"
+import StatTrakBadge from "../StatTrakBadge"
 
 function StatItem({ name, wear, rarity, isStatTrak, imgSrc, price }) {
   return (

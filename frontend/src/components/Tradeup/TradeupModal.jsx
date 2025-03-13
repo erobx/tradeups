@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import ModalItem from "./ModalItem"
-import useInventory from "../stores/inventoryStore"
+import useInventory from "../../stores/inventoryStore"
 
 function TradeupModal({ tradeupId, rarity }) {
   const { inventory, setInventory, addItem, removeItem } = useInventory()

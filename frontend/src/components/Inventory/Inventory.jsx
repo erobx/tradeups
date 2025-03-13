@@ -1,19 +1,19 @@
 import InventoryItem from "./InventoryItem"
-import EmptyItem from "./EmptyItem"
-import useInventory from "../stores/inventoryStore"
-import { usePresignedUrls } from "../hooks/usePresignedUrls"
+import EmptyItem from "../EmptyItem"
+import useInventory from "../../stores/inventoryStore"
+import { usePresignedUrls } from "../../hooks/usePresignedUrls"
 import { useMemo, useState } from "react"
-import { rarityOrder } from "../constants/rarity"
-import { wearOrder } from "../constants/wear"
-import { deleteSkin } from "../api/inventory"
-import useUserId from "../stores/userStore"
+import { rarityOrder } from "../../constants/rarity"
+import { wearOrder } from "../../constants/wear"
+import { deleteSkin } from "../../api/inventory"
+import useUser from "../../stores/userStore"
 
 function Modal({ invId, removeItem }) {
-  const { userId, setUserId } = useUserId()
+  const { user, setUser } = useUser()
 
   const onClick = async () => {
     const jwt = localStorage.getItem("jwt")
-    const res = await deleteSkin(jwt, userId, invId)
+    const res = await deleteSkin(jwt, user.id, invId)
     if (res.status !== 204) {
       return
     }

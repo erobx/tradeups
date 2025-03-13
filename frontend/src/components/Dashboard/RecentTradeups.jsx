@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { textMap } from "../constants/rarity"
+import { textMap } from "../../constants/rarity"
 import { useNavigate } from "react-router"
 
 function ListRow({ tradeupId, rarity, status, skins, value }) {

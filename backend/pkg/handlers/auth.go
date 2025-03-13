@@ -13,25 +13,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func GetUser(p *db.PostgresDB) fiber.Handler {
-	return func(c fiber.Ctx) error {
-		//accessToken := c.Cookies("JWT")
-		//if accessToken == "" {
-		//	log.Println("No access token")
-		//	return c.SendStatus(401)
-		//}
-
-        _, err := common.ValidateHeaders(c)
-        if err != nil {
-            return c.SendStatus(400)
-        }
-
-		return c.JSON(fiber.Map{
-			"loggedIn": true,
-		})
-	}
-}
-
 // {"email":"","password":""}
 func Login(p *db.PostgresDB) fiber.Handler {
 	return func(c fiber.Ctx) error {
@@ -58,10 +39,16 @@ func Login(p *db.PostgresDB) fiber.Handler {
 			c.SendStatus(500)
 		}
 
+        userData, err := p.GetUser(id)
+        if err != nil {
+            log.Println(err)
+            return c.SendStatus(500)
+        }
+
 		log.Printf("User %s logged in\n", creds.Email)
 		return c.JSON(fiber.Map{
-			"jwt": jwt,
-			"userId": id,
+			"JWT": jwt,
+			"user": userData,
 		})
 	}
 }
@@ -105,32 +92,37 @@ func Register(p *db.PostgresDB) fiber.Handler {
 		}
 		newUser.Hash = string(hashed)
 
-		if err := createAndSetJWT(c, newUser.Uuid.String()); err != nil {
+		jwt, err := createAndSetJWT(c, newUser.Uuid.String())
+        if err != nil {
 			return c.SendStatus(500)
 		}
 
-		if err := p.CreateUser(newUser); err != nil {
+		userData, err := p.CreateUser(newUser)
+        if err != nil {
 			log.Printf("Error: %s\n", err.Error())
 			return c.SendStatus(500)
 		}
 		
 		log.Printf("New user %s registered\n", newUser.Username)
-		return c.SendStatus(200)
+		return c.JSON(fiber.Map{
+            "JWT": jwt,
+            "user": userData,
+        })
 	}
 }
 
-func createAndSetJWT(c fiber.Ctx, id string) error {
+func createAndSetJWT(c fiber.Ctx, id string) (string, error) {
 	// new user created, make new jwt
 	jwt, err := newJWT(id)
 	if err != nil {
 		log.Printf("JWT not signed: %v\n", err)
-		return err
+		return "", err
 	}
 
 	// set cookie for jwt
 	cookie := createJWTCookie(jwt)
 	c.Cookie(cookie)
-	return nil
+	return jwt, nil
 }
 
 func newJWT(id string) (string, error) {

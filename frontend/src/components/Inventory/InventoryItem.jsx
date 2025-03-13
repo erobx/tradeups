@@ -1,6 +1,6 @@
-import RarityBadge from "./RarityBadge"
-import StatTrakBadge from "./StatTrakBadge"
-import { outlineMap } from "../constants/rarity"
+import RarityBadge from "../RarityBadge"
+import StatTrakBadge from "../StatTrakBadge"
+import { outlineMap } from "../../constants/rarity"
 
 function InventoryItem({ name, rarity, wear, price, isStatTrak, imgSrc }) {
   const outlineColor = outlineMap[rarity]

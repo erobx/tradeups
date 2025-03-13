@@ -16,16 +16,9 @@ const useUserStore = create((set) => ({
     setUser: (user) => set(() => ({ user }))
 }))
 
-const useUserIdStore = create((set) => ({
-    userId: "",
-    setUserId: (userId) => set(() => ({ userId })),
-    username: "",
-    setUsername: (username) => set(() => ({ username })),
-}))
-
-const useUserId = () => {
-    const { userId, setUserId } = useUserIdStore()
-    return { userId, setUserId }
+const useUser = () => {
+    const { user, setUser } = useUserStore()
+    return { user, setUser }
 }
 
-export default useUserId
+export default useUser

@@ -3,17 +3,15 @@
  *
  */
 
-const baseUrl = "http://localhost:8080/api"
+const baseUrl = "http://localhost:8080/api/tradeups"
 
 export const getTradeups = async () => {
-    const url = baseUrl + "/tradeups"
-
     const headers = {
         "Content-Type": "application/json",
     }
 
     try {
-        const res = await fetch(url, {
+        const res = await fetch(baseUrl, {
             method: "GET",
             headers: headers,
         })
@@ -25,7 +23,7 @@ export const getTradeups = async () => {
 }
 
 export const getTradeup = async (id) => {
-    const url = baseUrl + "/tradeups/" + id
+    const url = baseUrl + "/" + id
 
     const headers = {
         "Content-Type": "application/json",
@@ -44,7 +42,7 @@ export const getTradeup = async (id) => {
 }
 
 export const addSkinToTradeup = async (jwt, invId, tradeupId) => {
-    const url = baseUrl + "/tradeups/add"
+    const url = baseUrl + "/add"
 
     const headers = {
         "Content-Type": "application/json",
@@ -56,12 +54,14 @@ export const addSkinToTradeup = async (jwt, invId, tradeupId) => {
         tradeupId: tradeupId,
     }
 
+    const opts = {
+        method: "PUT",
+        headers: headers,
+        body: JSON.stringify(payload),
+    }
+
     try {
-        const res = await fetch(url, {
-            method: "PUT",
-            headers: headers,
-            body: JSON.stringify(payload),
-        })
+        const res = await fetch(url, opts)
         return res
     } catch (error) {
         console.error("Error: ", error)

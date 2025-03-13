@@ -1,9 +1,12 @@
-import StatTrakBadge from "./StatTrakBadge"
+import { useEffect } from "react"
+import StatTrakBadge from "../StatTrakBadge"
 import TradeupModal from "./TradeupModal"
+import useInventory from "../../stores/inventoryStore"
+import useUser from "../../stores/userStore"
 
-function GridItem({ name, wear, price, isStatTrak, imgSrc }) {
+function GridItem({ name, wear, price, isStatTrak, imgSrc, owned }) {
   const onClick = async () => {
-
+    console.log("User owns: ", owned)
   }
 
   return (
@@ -42,6 +45,15 @@ function EmptyGridItem({ tradeupId, rarity }) {
 }
 
 function TradeupGrid({ tradeupId, rarity, skins }) {
+  const { user, setUser } = useUser()
+
+  useEffect(() => {
+    skins = skins.map(skin => ({
+      ...skin,
+      owned: skin.userId === user.id
+    }))
+  }, [])
+
   return (
     <div className="grid grid-cols-5 grid-rows-2 rounded mt-5 gap-2">
       {skins.map(s => (
@@ -52,6 +64,7 @@ function TradeupGrid({ tradeupId, rarity, skins }) {
           price={s.price}
           isStatTrak={s.isStatTrak}
           imgSrc={s.imageSrc}
+          owned={s.owned}
         />
       ))}
       {skins.length < 10 && (

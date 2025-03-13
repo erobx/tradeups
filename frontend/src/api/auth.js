@@ -23,7 +23,8 @@ export const submitSignup = async (username, email, password) => {
 
     try {
         const res = await fetch(baseUrl+"/register", opts)
-        return res.status
+        const data = await res.json()
+        return data
     } catch (error) {
         console.error('Error:', error)
     }

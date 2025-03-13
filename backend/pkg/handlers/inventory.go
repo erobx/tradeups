@@ -6,6 +6,7 @@ import (
 	"github.com/erobx/tradeups/backend/internal/db"
 	"github.com/erobx/tradeups/backend/pkg/common"
 	"github.com/gofiber/fiber/v3"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 // {id: 0, name: "M4A4 | Howl", wear: "Factory New", rarity: "Contraband", float: 0.01, isStatTrak: true, imgSrc: "/m4a4-howl.png"},
@@ -13,11 +14,7 @@ func GetInventory(p *db.PostgresDB) fiber.Handler {
 	return func(c fiber.Ctx) error {
 		urlUserId := c.Params("userId")
 		// for now using Bearer token instead of jwt in the cookie bc of localhost
-
-        token, err := common.ValidateHeaders(c)
-        if err != nil {
-            return err
-        }
+        token := c.Locals("jwt").(*jwt.Token)
 
         jwtUserId, err := common.ValidateAndReturnUserId(token, urlUserId)
         if err != nil {
@@ -41,12 +38,8 @@ func DeleteSkin(p *db.PostgresDB) fiber.Handler {
     return func(c fiber.Ctx) error {
         urlUserId := c.Params("userId")
         urlInvId := c.Params("invId")
-		// for now using Bearer token instead of jwt in the cookie bc of localhost
 
-		token, err := common.ValidateHeaders(c)
-        if err != nil {
-            return err
-        }
+        token := c.Locals("jwt").(*jwt.Token)
 
         jwtUserId, err := common.ValidateAndReturnUserId(token, urlUserId)
         if err != nil {

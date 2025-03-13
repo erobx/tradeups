@@ -1,6 +1,6 @@
 import { Link } from "react-router"
-import inventory from "../assets/inventory.svg"
-import dashboard from "../assets/dashboard.svg"
+import inventory from "../../assets/inventory.svg"
+import dashboard from "../../assets/dashboard.svg"
 
 function DashboardDrawer() {
   return (

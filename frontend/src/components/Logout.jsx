@@ -8,7 +8,6 @@ function Logout({ setLoggedIn }) {
   const handleLogout = async () => {
     setLoading(true)
     localStorage.removeItem("jwt")
-    localStorage.removeItem("userId")
     setLoggedIn(false)
     setLoading(false)
   }
