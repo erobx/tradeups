@@ -18,34 +18,43 @@ func GetUser(p *db.PostgresDB) fiber.Handler {
 		//}
 
         userId := c.Params("userId")
+        token := c.Locals("jwt").(*jwt.Token)
 
         // no userId provided
         if userId == "" {
+            if claims, ok := token.Claims.(jwt.MapClaims); ok {
+                userId, _ = claims.GetSubject()
+            } else {
+                return c.SendStatus(fiber.StatusUnauthorized)
+            }
+            return sendUserData(p, c, userId)
+        } else {
+            userId, err := common.ValidateAndReturnUserId(token, userId)
+            if err != nil {
+                log.Println(err)
+                return c.SendStatus(fiber.StatusUnauthorized)
+            }
+
+            return sendUserData(p, c, userId)
         }
-
-        token := c.Locals("jwt").(*jwt.Token)
-
-        userId, err := common.ValidateAndReturnUserId(token, userId)
-        if err != nil {
-            log.Println(err)
-            return c.SendStatus(fiber.StatusUnauthorized)
-        }
-
-        userData, err := p.GetUser(userId)
-        if err != nil {
-            log.Println(err)
-            return c.SendStatus(fiber.StatusInternalServerError)
-        }
-
-        jwt, err := newJWT(userId)
-        if err != nil {
-            log.Println(err)
-            return c.SendStatus(500)
-        }
-
-		return c.JSON(fiber.Map{
-            "JWT": jwt,
-            "user": userData,
-		})
 	}
+}
+
+func sendUserData(p *db.PostgresDB, c fiber.Ctx, userId string) error {
+    userData, err := p.GetUser(userId)
+    if err != nil {
+        log.Println(err)
+        return c.SendStatus(fiber.StatusInternalServerError)
+    }
+
+    jwt, err := newJWT(userId)
+    if err != nil {
+        log.Println(err)
+        return c.SendStatus(500)
+    }
+
+    return c.JSON(fiber.Map{
+        "JWT": jwt,
+        "user": userData,
+    })
 }

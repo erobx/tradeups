@@ -11,6 +11,7 @@ import useAuth from "./stores/authStore"
 import useUser from "./stores/userStore"
 import useInventory from "./stores/inventoryStore"
 import { getInventory } from "./api/inventory"
+import { getUser } from "./api/user"
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuth()
@@ -24,14 +25,14 @@ function App() {
     if (jwt) {
       console.log("jwt exists")
       setLoggedIn(true)
-      // db call to get user
+      const userData = await getUser(jwt)
+      setUser(userData)
+      loadItems(jwt, userData.user.id)
     }
     setLoading(false)
   }
 
-  const loadItems = async (userId) => {
-    const jwt = localStorage.getItem("jwt")
-
+  const loadItems = async (jwt, userId) => {
     try {
       const data = await getInventory(jwt, userId)
 
