@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router"
-import { dividerMap } from "../../constants/rarity"
+import { dividerMap, textMap } from "../../constants/rarity"
 import ItemCarousel from "../ItemCarousel"
 import AvatarGroup from "../AvatarGroup"
 
-function InfoPanel({ count }) {
+function InfoPanel({ rarity, count }) {
+  const textColor = textMap[rarity]
+
   return (
-    <div className="card card-sm">
+    <div className="card card-sm w-36">
       <div className="card-body justify-center ml-4">
         <div className="flex flex-col items-center">
-          <div className="card-title font-bold text-xl">
-            Skin Count
+          <div className={`card-title font-bold m-auto ${textColor} text-xl`}>
+            {rarity}
           </div>
-          <div className="card-title font-bold text-accent text-xl">
+        </div>
+        <div className="flex flex-col items-center">
+          <div className="card-title font-bold text-warning text-xl">
             {count}
           </div>
         </div>
@@ -92,7 +96,7 @@ function TradeupRow({ id, players, rarity, skins, status }) {
 
   return (
     <div className="join bg-base-300 border-6 border-base-200 items-center justify-evenly lg:w-3/4 rounded-md">
-      <InfoPanel className="join-item" count={skins.length} />
+      <InfoPanel className="join-item" rarity={rarity} count={skins.length} />
       <div className={`divider divider-horizontal ${dividerColor}`}></div>
 
       <ItemCarousel className="join-item" skins={skins} />

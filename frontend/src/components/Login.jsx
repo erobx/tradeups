@@ -22,6 +22,10 @@ function Login() {
       if (data.skins === "empty") {
         setInventory([])
       } else {
+        data.skins = data.skins.map(skin => ({
+          ...skin,
+          price: parseFloat(skin.price).toFixed(2)
+        }))
         setInventory(data.skins)
       }
     } catch (error) {

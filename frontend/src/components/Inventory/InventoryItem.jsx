@@ -12,7 +12,7 @@ function InventoryItem({ name, rarity, wear, price, isStatTrak, imgSrc }) {
       <h1 className="text-primary ml-1.5">${price}</h1>
       <figure>
         <img
-          loading="lazy"
+          loading="eager"
           alt={name}
           src={imgSrc}
         />

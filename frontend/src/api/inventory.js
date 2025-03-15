@@ -19,7 +19,7 @@ export const getInventory = async (jwt, userId) => {
             method: "GET",
             headers: headers,
         })
-        const data = res.json()
+        const data = await res.json()
         return data
     } catch (error) {
         console.error("Error: ", error)

@@ -1,15 +1,16 @@
-import { useState } from "react"
-
+import useUser from "../stores/userStore"
+import useInventory from "../stores/inventoryStore"
 
 function Logout({ setLoggedIn }) {
-  const [loading, setLoading] = useState(false)
+  const { user, setUser } = useUser()
+  const { inventory, setInventory, addItem, removeItem } = useInventory()
 
   // TODO: change for cookies when that finally works
   const handleLogout = async () => {
-    setLoading(true)
     localStorage.removeItem("jwt")
     setLoggedIn(false)
-    setLoading(false)
+    setUser({})
+    setInventory([])
   }
 
   return (

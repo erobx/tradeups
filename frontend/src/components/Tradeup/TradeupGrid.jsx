@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import { useState, useMemo } from "react"
 import StatTrakBadge from "../StatTrakBadge"
 import TradeupModal from "./TradeupModal"
 import useUser from "../../stores/userStore"
@@ -36,6 +36,8 @@ function Modal({ invId, tradeupId }) {
 }
 
 function GridItem({ id, tradeupId, name, wear, price, isStatTrak, imgSrc, owned }) {
+  const outlineColor = owned ? "outline-accent" : "outline-error"
+
   const onSelect = () => {
     if (owned) {
       document.getElementById(`modal_${id}`).showModal()
@@ -44,12 +46,21 @@ function GridItem({ id, tradeupId, name, wear, price, isStatTrak, imgSrc, owned 
 
   return (
     <div
-      className="card card-xs w-48 bg-base-200 shadow-md m-0.5 hover:outline-4 outline-info"
+      className={`card card-xs w-48 bg-base-200 shadow-md m-0.5 border-transparent focus:outline-none hover:outline-4 ${outlineColor}`}
       onClick={onSelect}
     >
-      <h1 className="ml-1.5">${price}</h1>
+      {owned ? (
+      <div className="grid grid-cols-3">
+        <h1 className="text-primary m-auto">${price}</h1>
+        <div></div>
+        <div className="status status-lg status-accent animate-pulse m-auto ml-9"></div>
+      </div>
+      ) : (
+        <h1 className="text-primary ml-2">${price}</h1>
+      )}
       <figure>
         <img
+          loading="lazy"
           alt={name}
           src={imgSrc}
         />
@@ -84,6 +95,7 @@ function TradeupGrid({ tradeupId, rarity, skins }) {
   const skinsWithOwnership = useMemo(() => {
     return skins.map(skin => ({
       ...skin,
+      price: parseFloat(skin.price).toFixed(2),
       owned: skin.userId == user.id
     }))
   }, [skins, user.id])

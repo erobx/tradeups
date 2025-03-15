@@ -1,24 +1,27 @@
-import { useEffect, useState } from "react"
+import { useMemo, useState } from "react"
 import ModalItem from "./ModalItem"
 import useInventory from "../../stores/inventoryStore"
 
 function TradeupModal({ tradeupId, rarity }) {
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [currentPage, setCurrentPage] = useState(1)
-  const [currentItems, setCurrentItems] = useState([])
+  const [totalPages, setTotalPages] = useState(1)
   const itemsPerPage = 15
 
   const startIndex = (currentPage - 1) * itemsPerPage
   const endIndex = startIndex + itemsPerPage
-  const totalPages = Math.ceil(inventory.length / itemsPerPage)
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
-  useEffect(() => {
-    var tempItems = inventory.filter(i => i.rarity === rarity)
-    tempItems = tempItems.slice(startIndex, endIndex)
-    setCurrentItems(tempItems)
-  }, [rarity, inventory])
+  const filtered = useMemo(() => {
+    const temp = inventory.filter(i => i.rarity === rarity)
+    const pages = Math.ceil(temp.length / itemsPerPage)
+    setTotalPages(pages)
+
+    return inventory.filter(i => i.rarity === rarity)
+  }, [inventory])
+
+  const currentItems = filtered.slice(startIndex, endIndex)
 
   return (
     <div>
