@@ -13,7 +13,7 @@ import (
 type PostgresDB struct {
 	conn *pgxpool.Pool
     urlManager *url.PresignedUrlManager
-    LockManager *lock.LockManager
+    lockManager *lock.LockManager
 }
 
 func NewPostgresDB() (*PostgresDB, error) {
@@ -30,7 +30,7 @@ func NewPostgresDB() (*PostgresDB, error) {
 	return &PostgresDB{
         conn: conn,
         urlManager: pm,
-        LockManager: lm,
+        lockManager: lm,
     }, nil
 }
 

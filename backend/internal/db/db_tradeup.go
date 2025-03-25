@@ -181,6 +181,7 @@ func (p *PostgresDB) TradeupIsFull(tradeupId string) error {
     return nil
 }
 
+// TODO: check if tradeup has a lock on it (locked after timer expires)
 func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error {
     // if the user actually owns the skin to add
     var exists bool
@@ -206,9 +207,13 @@ func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error
         return fmt.Errorf("Not an insert statement")
     }
 
+    // have to check if tradeup has 10 skins in order to start timer
+
+
     return nil
 }
 
+// TODO: if timer not nil stop timer (we know timer was initialized)
 func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.InventorySkin, error) {
     var invSkin skins.InventorySkin
     var imageKey string
