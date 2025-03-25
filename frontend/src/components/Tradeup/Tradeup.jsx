@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams } from "react-router"
 import TradeupGrid from "./TradeupGrid"
 import { textMap } from "../../constants/rarity"
+import CountdownTimer from "./CountdownTimer"
 
 function Tradeup() {
   const params = useParams()
@@ -41,13 +42,14 @@ function Tradeup() {
   }
 
   return (
-    <div className="flex flex-col items-center mt-5">
-      <span className={`font-bold text-2xl ${textColor}`}>{tradeup.rarity}</span>
-      <div className="font-bold text-xl">Status:&nbsp;
-        <span className="text-info">{tradeup.status}</span>
+    <div className="flex flex-col items-center gap-2 mt-5">
+      <div className="flex items-center gap-5">
+        <span className={`font-bold text-2xl ${textColor}`}>{tradeup.rarity}</span>
+        <span className="font-bold">—</span>
+        <span className="font-bold text-2xl text-info">{tradeup.status}</span>
       </div>
       {tradeup.skins.length === 10 && (
-        <div>Tradeup Locks In:{}</div>
+        <div className="font-bold text-lg">Tradeup Closes In: <CountdownTimer stopTime={tradeup.stopTime} /></div>
       )}
       <TradeupGrid tradeupId={tradeupId} rarity={tradeup.rarity} skins={tradeup.skins} />
     </div>

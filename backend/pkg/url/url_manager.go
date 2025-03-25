@@ -78,7 +78,9 @@ func (m *PresignedUrlManager) GetUrls(imageKeys []string) map[string]string {
                 out, err := m.client.PresignGetObject(context.Background(), &s3.GetObjectInput{
                     Bucket: &m.bucket,
                     Key: aws.String(common.PrefixKey(key)),
-                })
+                }, func(opts *s3.PresignOptions) {
+                        opts.Expires = time.Hour * 24
+                    })
                 log.Println("Generated new presigned url for:", key)
                 if err == nil {
                     mu.Lock()

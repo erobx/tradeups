@@ -158,6 +158,7 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
         if err != nil {
             return t, err
         }
+        log.Printf("Closed tradeup %s\n", id)
     }
 
     for _, skin := range t.Skins {
@@ -257,6 +258,7 @@ func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.I
         if err != nil {
             return invSkin, err
         }
+        log.Printf("Stopped timer for tradeup %s\n", tradeupId)
     }
 
     q = `
@@ -283,4 +285,10 @@ func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.I
     urlMap := p.urlManager.GetUrls([]string{imageKey})
     invSkin.ImageSrc = urlMap[imageKey]
     return invSkin, err
+}
+
+func (p *PostgresDB) CreateTradeup() error {
+    q := ``
+
+    return nil
 }
