@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"time"
 
 	"github.com/erobx/tradeups/backend/pkg/skins"
 	"github.com/erobx/tradeups/backend/pkg/tradeups"
@@ -98,7 +100,7 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
     var t tradeups.Tradeup
     q := `
-    select t.id tradeup_id, t.rarity, t.current_status,
+    select t.id tradeup_id, t.rarity, t.current_status, t.stop_time,
 	coalesce(
 		jsonb_agg(
 			distinct jsonb_build_object(
@@ -134,7 +136,7 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
     var playersJson, skinsJson []byte
     var imageKeys []string
     row := p.conn.QueryRow(context.Background(), q, id)
-    err := row.Scan(&t.Id, &t.Rarity, &t.Status, &playersJson, &skinsJson)
+    err := row.Scan(&t.Id, &t.Rarity, &t.Status, &t.StopTime, &playersJson, &skinsJson)
     if err != nil {
         return t, err
     }
@@ -147,6 +149,15 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
     err = json.Unmarshal(skinsJson, &t.Skins)
     if err != nil {
         return t, err
+    }
+
+    // timer expired
+    if time.Now().After(t.StopTime) {
+        q = "update tradeups set current_status = 'In Progress' where id=$1"
+        _, err = p.conn.Exec(context.Background(), q, id)
+        if err != nil {
+            return t, err
+        }
     }
 
     for _, skin := range t.Skins {
@@ -167,10 +178,7 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
 }
 
 func (p *PostgresDB) TradeupIsFull(tradeupId string) error {
-    var numSkins int
-    q := "select count(tradeup_id) from tradeups_skins where tradeup_id=$1"
-    row := p.conn.QueryRow(context.Background(), q, tradeupId)
-    err := row.Scan(&numSkins)
+    numSkins, err := p.getSkinCount(tradeupId)
     if err != nil {
         return err
     }
@@ -181,7 +189,6 @@ func (p *PostgresDB) TradeupIsFull(tradeupId string) error {
     return nil
 }
 
-// TODO: check if tradeup has a lock on it (locked after timer expires)
 func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error {
     // if the user actually owns the skin to add
     var exists bool
@@ -198,26 +205,61 @@ func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error
 
     // finally add the skin
     q = "insert into tradeups_skins values($1,$2)"
-    tag, err := p.conn.Exec(context.Background(), q, tradeupId, invId)
+    _, err = p.conn.Exec(context.Background(), q, tradeupId, invId)
     if err != nil {
         return err
     }
 
-    if !tag.Insert() {
-        return fmt.Errorf("Not an insert statement")
+    // have to check if tradeup has 10 skins in order to start timer
+    numSkins, err := p.getSkinCount(tradeupId)
+    if err != nil {
+        return err
     }
 
-    // have to check if tradeup has 10 skins in order to start timer
-
+    if numSkins == 10 {
+        q = "update tradeups set stop_time=now() + interval '5 min' where id=$1"
+        _, err = p.conn.Exec(context.Background(), q, tradeupId)
+        log.Printf("Started timer for tradeup %s\n", tradeupId)
+        if err != nil {
+            return err
+        }
+    }
 
     return nil
 }
 
-// TODO: if timer not nil stop timer (we know timer was initialized)
 func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.InventorySkin, error) {
+    var status string
     var invSkin skins.InventorySkin
     var imageKey string
-    q := `
+
+    // check if status is 'Active'
+    q := "select current_status from tradeups where id=$1"
+    row := p.conn.QueryRow(context.Background(), q, tradeupId)
+    err := row.Scan(&status)
+    if err != nil {
+        return invSkin, err
+    }
+
+    if status != "Active" {
+        return invSkin, fmt.Errorf("Cannot remove a skin from non-active tradeup")
+    }
+
+    numSkins, err := p.getSkinCount(tradeupId)
+    if err != nil {
+        return invSkin, err
+    }
+
+    // tradeup full before removal, check if stop_time < now()
+    if numSkins == 10 {
+        q = "update tradeups set stop_time=now() + interval '5 year' where id=$1"
+        _, err = p.conn.Exec(context.Background(), q, tradeupId)
+        if err != nil {
+            return invSkin, err
+        }
+    }
+
+    q = `
     with deleted_skin as (
         delete from tradeups_skins ts
         where tradeup_id=$1 and inv_id=$2
@@ -230,8 +272,8 @@ func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.I
 	where i.id=$3
     order by s.image_key, i.wear_str
     `
-    row := p.conn.QueryRow(context.Background(), q, tradeupId, invId, invId)
-    err := row.Scan(&invSkin.Id, &invSkin.Wear, &invSkin.SkinFloat, &invSkin.Price, &invSkin.IsStatTrak, &invSkin.CreatedAt,
+    row = p.conn.QueryRow(context.Background(), q, tradeupId, invId, invId)
+    err = row.Scan(&invSkin.Id, &invSkin.Wear, &invSkin.SkinFloat, &invSkin.Price, &invSkin.IsStatTrak, &invSkin.CreatedAt,
         &invSkin.Name, &invSkin.Rarity, &invSkin.Collection, &imageKey)
     
     if err != nil {

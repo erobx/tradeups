@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/erobx/tradeups/backend/pkg/lock"
 	"github.com/erobx/tradeups/backend/pkg/url"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -13,7 +12,6 @@ import (
 type PostgresDB struct {
 	conn *pgxpool.Pool
     urlManager *url.PresignedUrlManager
-    lockManager *lock.LockManager
 }
 
 func NewPostgresDB() (*PostgresDB, error) {
@@ -25,13 +23,20 @@ func NewPostgresDB() (*PostgresDB, error) {
 
 	bucketName := os.Getenv("S3_BUCKET")
     pm := url.NewPresignedUrlManager(bucketName)
-    lm := lock.NewLockManager()
 
 	return &PostgresDB{
         conn: conn,
         urlManager: pm,
-        lockManager: lm,
     }, nil
 }
 
-
+func (p *PostgresDB) getSkinCount(tradeupId string) (int, error) {
+    var numSkins int
+    q := "select count(tradeup_id) from tradeups_skins where tradeup_id=$1"
+    row := p.conn.QueryRow(context.Background(), q, tradeupId)
+    err := row.Scan(&numSkins)
+    if err != nil {
+        return numSkins, err
+    }
+    return numSkins, err
+}
