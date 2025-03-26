@@ -32,10 +32,10 @@ func (p *PostgresDB) CreateUser(u *user.User) (user.UserData, error) {
 	q := `
     insert into users(id, username, email, hash, created_at) values($1,$2,$3,$4,$5)
     returning id, username, email, avatar_key, refresh_token_version,
-    created_at
+    created_at, balance
     `
 	row := p.conn.QueryRow(context.Background(), q, u.Uuid, u.Username, u.Email, u.Hash, time.Now())
-    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt)
+    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt, &userData.Balance)
 
     if avatarKey != "" {
         urlMap := p.urlManager.GetUrls([]string{avatarKey})
@@ -46,7 +46,7 @@ func (p *PostgresDB) CreateUser(u *user.User) (user.UserData, error) {
     userData.AvatarSrc = avatarKey
 
     // give user random skins
-    _, err = p.BuyCrate(u.Uuid.String(), "Consumer", 8)
+    _, _, err = p.BuyCrate(u.Uuid.String(), "ConOG", "Consumer", 8)
     if err != nil {
         log.Printf("Could not give user %s new skins\n", u.Uuid.String())
     }

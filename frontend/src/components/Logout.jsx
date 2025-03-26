@@ -2,7 +2,7 @@ import useUser from "../stores/userStore"
 import useInventory from "../stores/inventoryStore"
 
 function Logout({ setLoggedIn }) {
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
 
   // TODO: change for cookies when that finally works

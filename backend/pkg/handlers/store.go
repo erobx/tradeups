@@ -4,13 +4,20 @@ import (
 	"log"
 
 	"github.com/erobx/tradeups/backend/internal/db"
+	"github.com/erobx/tradeups/backend/pkg/skins"
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type CratePayload struct {
     Name string `json:"name"`
+    Rarity string `json:"rarity"`
     Count int `json:"count"`
+}
+
+type SuccessfulPurchase struct {
+    Skins []skins.InventorySkin `json:"skins"`
+    Balance float64 `json:"balance"`
 }
 
 func BuyCrate(p *db.PostgresDB) fiber.Handler {
@@ -31,12 +38,15 @@ func BuyCrate(p *db.PostgresDB) fiber.Handler {
             return err
         }
 
-        newSkins, err := p.BuyCrate(jwtUserId, payload.Name, payload.Count)
+        newSkins, newBalance, err := p.BuyCrate(jwtUserId, payload.Name, payload.Rarity, payload.Count)
         if err != nil {
             log.Println(err)
             return c.SendStatus(500)
         }
 
-        return c.JSON(newSkins)
+        return c.JSON(SuccessfulPurchase{
+            newSkins,
+            newBalance,
+        })
     }
 }

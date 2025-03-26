@@ -10,7 +10,7 @@ import useUser from "../../stores/userStore"
 import PageSelector from "./PageSelector"
 
 function Modal({ invId, removeItem }) {
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
 
   const onClick = async () => {
     const jwt = localStorage.getItem("jwt")

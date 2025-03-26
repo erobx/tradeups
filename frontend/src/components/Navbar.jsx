@@ -5,7 +5,7 @@ import Balance from "./Balance"
 import useUser from "../stores/userStore"
 
 function Navbar() {
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
   const { loggedIn, setLoggedIn } = useAuth()
 
   return (

@@ -9,7 +9,7 @@ import { getInventory } from "../api/inventory"
 function SignUp() {
   const navigate = useNavigate()
   const { loggedIn, setLoggedIn } = useAuth()
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')

@@ -9,7 +9,7 @@ import useUser from "../stores/userStore"
 function Login() {
   const navigate = useNavigate()
   const { loggedIn, setLoggedIn } = useAuth()
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')

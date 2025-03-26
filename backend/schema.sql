@@ -58,7 +58,8 @@ create table if not exists crates (
     id int primary key generated always as identity not null,
     name text not null,
     rarity text not null,
-    image_key text
+    image_key text,
+    cost numeric not null
 );
 
 create table if not exists crate_skins (

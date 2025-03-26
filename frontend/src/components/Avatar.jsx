@@ -1,7 +1,7 @@
 import useUser from "../stores/userStore"
 
 function Avatar() {
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
 
   return (
     <div tabIndex={0} role="button" className="btn btn-ghost btn-circle ml-1 avatar avatar-placeholder">

@@ -18,9 +18,9 @@ function Store() {
         <h1 className="font-bold text-xl ml-4.5">Crates containing 3 skins:</h1>
         <div className="flex justify-start ml-4">
           <div className="flex gap-6">
-            <Crate name="Consumer" count={3} />
-            <Crate name="Industrial" count={3} />
-            <Crate name="Mil-Spec" count={3} />
+            <Crate name="Series Zero Core" rarity="Consumer" count={3} />
+            <Crate name="Series Zero Prime" rarity="Industrial" count={3} />
+            <Crate name="Series Zero Prototype" rarity="Mil-Spec" count={3} />
           </div>
         </div>
 
@@ -29,9 +29,9 @@ function Store() {
         <h1 className="font-bold text-xl ml-4.5">Crates containing 5 skins:</h1>
         <div className="flex justify-start ml-4">
           <div className="flex gap-6">
-            <Crate name="Consumer" count={5} />
-            <Crate name="Industrial" count={5} />
-            <Crate name="Mil-Spec" count={5} />
+            <Crate name="ConOne" rarity="Consumer" count={5} />
+            <Crate name="IndOne" rarity="Industrial" count={5} />
+            <Crate name="MilOne" rarity="Mil-Spec" count={5} />
           </div>
         </div>
 

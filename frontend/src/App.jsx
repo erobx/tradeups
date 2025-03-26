@@ -15,7 +15,7 @@ import { getUser } from "./api/user"
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuth()
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [loading, setLoading] = useState(true)
 

@@ -90,7 +90,7 @@ function EmptyGridItem({ tradeupId, rarity }) {
 }
 
 function TradeupGrid({ tradeupId, rarity, skins }) {
-  const { user, setUser } = useUser()
+  const { user, setUser, setBalance } = useUser()
 
   const skinsWithOwnership = useMemo(() => {
     return skins.map(skin => ({
