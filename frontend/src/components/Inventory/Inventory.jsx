@@ -44,7 +44,7 @@ function Inventory() {
   const [filter, setFilter] = useState("")
   const processedInventory = usePresignedUrls(inventory)
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 21
+  const itemsPerPage = 18
 
   const sortedInventory = useMemo(() => {
     const sorted = [...processedInventory]
@@ -95,8 +95,8 @@ function Inventory() {
   }
 
   return (
-    <div className="flex">
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+    <div className="flex flex-col gap-3 lg:flex-row">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 flex-grow">
         {currentItems.map((item) => (
           <div key={item.id} className="item" onClick={() => document.getElementById(`modal_${item.id}`).showModal()}>
             <InventoryItem 
@@ -115,16 +115,22 @@ function Inventory() {
         ))}
       </div>
 
-      <div className="">
-        <form className="filter" onClick={handleFilter}>
-          <input className="btn btn-square" type="reset" value="×"/>
-          <input className="btn" type="radio" name="frameworks" aria-label="Rarity"/>
-          <input className="btn" type="radio" name="frameworks" aria-label="Wear"/>
-          <input className="btn" type="radio" name="frameworks" aria-label="Price"/>
-        </form>
+      <div className="w-full lg:w-64 lg:ml-4 order-1 lg:order-2 mb-4 lg:mb-0">
+        <div className="card flex flex-col items-center gap-3 bg-base-200 p-4 w-full">
+          <h1 className="font-bold text-lg">Filters</h1>
+          <form className="filter" onClick={handleFilter}>
+            <input className="btn btn-square" type="reset" value="×"/>
+            <input className="btn btn-info" type="radio" name="frameworks" aria-label="Rarity"/>
+            <input className="btn btn-accent" type="radio" name="frameworks" aria-label="Wear"/>
+            <input className="btn btn-warning" type="radio" name="frameworks" aria-label="Price"/>
+          </form>
+          <div>
+            <button className="btn btn-error">Enter delete mode</button>
+          </div>
+        </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 z-50">
+      <div className="fixed bottom-4 right-4 z-50 order-3">
         <div className="join">
           <button className="join-item btn" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>«</button>
           <div className="join-item btn"> 

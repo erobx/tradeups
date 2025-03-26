@@ -6,7 +6,7 @@ import Dashboard from "../components/Dashboard/Dashboard"
 
 function DashboardPage() {
   return (
-    <div className="flex gap-2">
+    <div className="flex justify-evenly gap-2">
       <div>
         <DashboardDrawer />
       </div>
