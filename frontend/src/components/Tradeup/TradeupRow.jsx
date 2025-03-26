@@ -51,9 +51,13 @@ function PlayersPanel({ players }) {
             Players
           </div>
           <div className="card-title">
-            <AvatarGroup
-              avatars={players}
-            />
+            {players.length !== 0 ? (
+              <AvatarGroup
+                players={players}
+              />
+            ) : (
+              <div>None</div>
+            )}
           </div>
         </div>
       </div>
@@ -78,12 +82,6 @@ function ButtonPanel({ tradeupId }) {
 
 function TradeupRow({ id, players, rarity, skins, status }) {
   const [totalPrice, setTotalPrice] = useState(0)
-
-  const tempPlayers = [
-    {id: 0, initials: "ER", imgSrc: ""},
-    {id: 1, initials: "JD", imgSrc: ""}
-  ]
-
   const dividerColor = dividerMap[rarity]
 
   useEffect(() => {
@@ -104,7 +102,7 @@ function TradeupRow({ id, players, rarity, skins, status }) {
 
       <div className="flex items-start">
         <DetailsPanel className="join-item" total={totalPrice} />
-        <PlayersPanel className="join-item" players={tempPlayers} />
+        <PlayersPanel className="join-item" players={players} />
       </div>
       <div className="divider divider-horizontal divider-primary"></div>
 

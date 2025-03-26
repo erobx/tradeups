@@ -18,7 +18,7 @@ function ModalItem({ invId, tradeupId, name, wear, isStatTrak, imgSrc, price, re
   }
 
   return (
-    <div className={`card card-md w-56 h-48 bg-base-300 hover:border-4`} onClick={addSkin}>
+    <div className={`card card-md w-56 h-48 bg-base-300 hover:border-4 hover:cursor-pointer`} onClick={addSkin}>
       <h1 className="text-sm font-bold text-primary ml-1.5 mt-0.5">${price}</h1>
       <figure>
         <img

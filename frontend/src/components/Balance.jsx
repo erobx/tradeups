@@ -1,8 +1,8 @@
 
-function Balance() {
+function Balance({ balance }) {
   return (
     <button className="btn badge-lg btn-success mr-1.5">
-      $420.69
+      ${parseFloat(balance).toFixed(2)}
     </button>
   )
 }

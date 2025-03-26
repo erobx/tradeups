@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"github.com/erobx/tradeups/backend/pkg/user"
@@ -31,7 +32,7 @@ func (p *PostgresDB) CreateUser(u *user.User) (user.UserData, error) {
 	q := `
     insert into users(id, username, email, hash, created_at) values($1,$2,$3,$4,$5)
     returning id, username, email, avatar_key, refresh_token_version,
-    to_char(created_at, 'YYYY/MM/DD HH12:MI:SS')
+    created_at
     `
 	row := p.conn.QueryRow(context.Background(), q, u.Uuid, u.Username, u.Email, u.Hash, time.Now())
     err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt)
@@ -43,6 +44,12 @@ func (p *PostgresDB) CreateUser(u *user.User) (user.UserData, error) {
         }
     }
     userData.AvatarSrc = avatarKey
+
+    // give user random skins
+    _, err = p.BuyCrate(u.Uuid.String(), "Consumer", 8)
+    if err != nil {
+        log.Printf("Could not give user %s new skins\n", u.Uuid.String())
+    }
 
 	return userData, err
 }
@@ -63,11 +70,11 @@ func (p *PostgresDB) GetUser(id string) (user.UserData, error) {
     var avatarKey string
     q := `
     select id, username, email, avatar_key, refresh_token_version,
-    to_char(created_at, 'YYYY/MM/DD HH12:MI:SS') from users where
+    created_at, balance from users where
     id = $1
     `
     row := p.conn.QueryRow(context.Background(), q, id)
-    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt)
+    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt, &userData.Balance)
 
     if avatarKey != "" {
         urlMap := p.urlManager.GetUrls([]string{avatarKey})

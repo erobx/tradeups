@@ -4,7 +4,7 @@ import dashboard from "../../assets/dashboard.svg"
 
 function DashboardDrawer() {
   return (
-    <div className="drawer w-min lg:drawer-open">
+    <div className="drawer shadow-md w-min lg:drawer-open">
       <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content flex flex-col items-center justify-center">
           {/* Page content here */}

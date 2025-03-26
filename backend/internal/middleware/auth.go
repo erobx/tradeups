@@ -1,11 +1,13 @@
 package middleware
 
 import (
-    "fmt"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/erobx/tradeups/backend/pkg/common"
 	"github.com/gofiber/fiber/v3"
+	"github.com/gofiber/fiber/v3/middleware/basicauth"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -26,6 +28,15 @@ func Protected() fiber.Handler {
         c.Locals("jwt", token)
         return c.Next()
     }
+}
+
+func Admin() fiber.Handler {
+    return basicauth.New(basicauth.Config{
+        Users: map[string]string{
+            "admin": os.Getenv("ADMIN_PASS"),
+        },
+        Realm: "Forbidden",
+    })
 }
 
 func verifyJwt(tokenString string) (*jwt.Token, error) {

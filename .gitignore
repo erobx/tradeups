@@ -19,7 +19,6 @@ Thumbs.db
 !.env.example
 !.env.test
 *.txt
-*.sql
 *.pem
 *.pub
 jwt-key-ecdsa

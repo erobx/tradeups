@@ -1,10 +1,10 @@
-function AvatarGroup({ avatars }) {
+function AvatarGroup({ players }) {
   return (
     <div className="avatar-group gap-1">
-      {avatars.map((a) => (
+      {players.map((p) => (
         <div className="avatar avatar-placeholder">
           <div className="bg-neutral text-neutral-content w-8 rounded-full">
-            <span>{a.initials}</span>
+            <span>{p.username[0].toUpperCase()}</span>
           </div>
         </div>
       ))}

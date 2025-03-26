@@ -25,7 +25,7 @@ func (p *PostgresDB) GetInventory(userId string) (user.Inventory, error) {
             WHERE ts.inv_id = i.id
         )
     )
-    select i.id, i.wear_str, i.wear_num, round(cast(i.price as numeric),2), i.is_stattrak, to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS'),
+    select i.id, i.wear_str, i.wear_num, round(cast(i.price as numeric),2), i.is_stattrak, i.created_at,
 		s.name, s.rarity, s.collection, s.image_key
 	from inventory i
 	join skins s on s.id = i.skin_id

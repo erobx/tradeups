@@ -1,5 +1,7 @@
 package skins
 
+import "time"
+
 type Skin struct {
 	Name       string  `json:"name"`
 	Rarity      string  `json:"rarity"`
@@ -20,7 +22,7 @@ type InventorySkin struct {
 	Rarity string `json:"rarity"`
 	Collection string `json:"collection"`
 	ImageSrc string `json:"imageSrc"`
-    CreatedAt string `json:"createdAt"`
+    CreatedAt time.Time `json:"createdAt"`
 }
 
 type TradeupSkin struct {

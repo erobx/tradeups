@@ -12,7 +12,7 @@ func (p *PostgresDB) BuyCrate(userId, name string, count int) ([]skins.Inventory
     var imageKeys []string
 
     q := `
-    SELECT oc.id, oc.skin_id, oc.wear_str, oc.wear_num, round(cast(oc.price as numeric),2), oc.is_stattrak, to_char(oc.created_at, 'YYYY/MM/DD HH12:MI:SS'),
+    SELECT oc.id, oc.skin_id, oc.wear_str, oc.wear_num, round(cast(oc.price as numeric),2), oc.is_stattrak, oc.created_at,
             s.name, s.rarity, s.collection, s.image_key
     FROM open_crate(
         (SELECT id FROM users WHERE id=$1),

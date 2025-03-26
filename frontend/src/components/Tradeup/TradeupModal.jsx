@@ -24,7 +24,7 @@ function TradeupModal({ tradeupId, rarity }) {
   const currentItems = filtered.slice(startIndex, endIndex)
 
   return (
-    <div>
+    <div className="h-48">
       <button className="btn btn-primary" onClick={()=>document.getElementById('modal_1').showModal()}>Add Skin</button>
       <dialog id="modal_1" className="modal">
         <div className="modal-box max-w-7xl max-h-3xl">

@@ -7,6 +7,7 @@ import { rarityOrder } from "../../constants/rarity"
 import { wearOrder } from "../../constants/wear"
 import { deleteSkin } from "../../api/inventory"
 import useUser from "../../stores/userStore"
+import PageSelector from "./PageSelector"
 
 function Modal({ invId, removeItem }) {
   const { user, setUser } = useUser()
@@ -42,7 +43,6 @@ function Inventory() {
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState("")
   const processedInventory = usePresignedUrls(inventory)
-
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 21
 
@@ -77,7 +77,7 @@ function Inventory() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
   
   const handleFilter = (e) => {
-    const label = e.target.ariaLabel
+    const label = e.target.getAttribute('aria-label')
     setFilter(label || "")
     setCurrentPage(1)
   }
@@ -91,16 +91,12 @@ function Inventory() {
   }
   
   if (processedInventory.length === 0) {
-    return (
-      <div>
-        <EmptyItem />
-      </div>
-    )
+    return <EmptyItem />
   }
 
   return (
     <div className="flex">
-      <div className="grid grid-flow-row lg:grid-cols-7 gap-2 md:grid-cols-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
         {currentItems.map((item) => (
           <div key={item.id} className="item" onClick={() => document.getElementById(`modal_${item.id}`).showModal()}>
             <InventoryItem 
@@ -118,7 +114,8 @@ function Inventory() {
           </div>
         ))}
       </div>
-      <div className="mb-2">
+
+      <div className="">
         <form className="filter" onClick={handleFilter}>
           <input className="btn btn-square" type="reset" value="×"/>
           <input className="btn" type="radio" name="frameworks" aria-label="Rarity"/>
@@ -126,10 +123,13 @@ function Inventory() {
           <input className="btn" type="radio" name="frameworks" aria-label="Price"/>
         </form>
       </div>
+
       <div className="fixed bottom-4 right-4 z-50">
         <div className="join">
           <button className="join-item btn" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>«</button>
-          <button className="join-item btn">Page {currentPage}</button>
+          <div className="join-item btn"> 
+            <PageSelector totalPages={totalPages} currentPage={currentPage} setCurrentPage={setCurrentPage} />
+          </div>
           <button className="join-item btn" onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>»</button>
         </div>
       </div>

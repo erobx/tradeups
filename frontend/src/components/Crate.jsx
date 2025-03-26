@@ -9,6 +9,8 @@ function Crate({ name, count }) {
       const jwt = localStorage.getItem("jwt")
       const data = await buyCrate(jwt, name, count)
       data.forEach(item => {
+        // doesn't work
+        item.price = Number(item.price.toFixed(2))
         addItem(item)
       })
     } catch (error) {
@@ -20,10 +22,10 @@ function Crate({ name, count }) {
     <div className="card bg-base-300 w-52 shadow-sm">
       <div className="card-body">
         <h2 className="card-title">
-          {name} {count}
+          {name}
         </h2>
         <figure>
-          <img src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp" alt="" />
+          <img src="crate.png" alt="" />
         </figure>
         <div className="card-actions">
           <button className="btn btn-primary" onClick={handleSubmit}>Buy crate</button>

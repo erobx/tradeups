@@ -91,3 +91,22 @@ func RemoveSkinFromTradeup(p *db.PostgresDB) fiber.Handler {
         return c.JSON(returnedSkin)
     }
 }
+
+type TradeupPayload struct {
+    Rarity string `json:"rarity"`
+}
+// admin handler
+func NewTradeup(p *db.PostgresDB) fiber.Handler {
+    return func(c fiber.Ctx) error {
+        payload := new(TradeupPayload)
+        c.Bind().Body(payload)
+        log.Printf("Creating new tradeup of type %s\n", payload.Rarity)
+
+        err := p.CreateTradeup(payload.Rarity)
+        if err != nil {
+            return c.SendString("Could not create new tradeup")
+        }
+
+        return c.SendString("Created new tradeup")
+    }
+}

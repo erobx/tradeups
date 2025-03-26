@@ -14,7 +14,7 @@ import (
 func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 	var activeTradeups []tradeups.Tradeup
 	q := `
-	select t.id tradeup_id, t.rarity, t.current_status,
+	select t.id tradeup_id, t.rarity, t.current_status, t.stop_time,
 	coalesce(
 		jsonb_agg(
 			distinct jsonb_build_object(
@@ -52,7 +52,7 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 	for rows.Next() {
 		var t tradeups.Tradeup
 		var playersJson, skinsJson []byte
-		err := rows.Scan(&t.Id, &t.Rarity, &t.Status, &playersJson, &skinsJson)
+		err := rows.Scan(&t.Id, &t.Rarity, &t.Status, &t.StopTime, &playersJson, &skinsJson)
 		if err != nil {
 			return activeTradeups, err
 		}
@@ -67,6 +67,15 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 		if err != nil {
 			return activeTradeups, err
 		}
+
+        // timer expired
+        if time.Now().After(t.StopTime) {
+            q = "update tradeups set current_status = 'In Progress' where id=$1"
+            _, err = p.conn.Exec(context.Background(), q, t.Id)
+            if err != nil {
+                return activeTradeups, err
+            }
+        }
 
         for _, skin := range tempSkins {
             if skin.ImageSrc != "" {
@@ -158,7 +167,6 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
         if err != nil {
             return t, err
         }
-        log.Printf("Closed tradeup %s\n", id)
     }
 
     for _, skin := range t.Skins {
@@ -267,7 +275,7 @@ func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.I
         where tradeup_id=$1 and inv_id=$2
         returning inv_id
     )
-    select i.id, i.wear_str, i.wear_num, round(cast(i.price as numeric),2), i.is_stattrak, to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS'),
+    select i.id, i.wear_str, i.wear_num, round(cast(i.price as numeric),2), i.is_stattrak, i.created_at,
 		s.name, s.rarity, s.collection, s.image_key
     from inventory i
 	join skins s on s.id = i.skin_id
@@ -287,8 +295,12 @@ func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.I
     return invSkin, err
 }
 
-func (p *PostgresDB) CreateTradeup() error {
-    q := ``
+func (p *PostgresDB) CreateTradeup(rarity string) error {
+    q := "insert into tradeups values (nextval('tradeups_id_seq'),$1)"
+    _, err := p.conn.Exec(context.Background(), q, rarity)
+    if err != nil {
+        return err
+    }
 
     return nil
 }
