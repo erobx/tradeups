@@ -342,7 +342,6 @@ func (p *PostgresDB) decideWinner(tradeup tradeups.Tradeup) error {
     log.Printf("User %s won!\n", winner)
 
     // generate new skin based on next rarity and value
-
     q := `
     update tradeups set current_status = 'Completed' where id=$1
     `
@@ -351,7 +350,11 @@ func (p *PostgresDB) decideWinner(tradeup tradeups.Tradeup) error {
         return err
     }
 
+    q = "update tradeups set winner=$1 where id=$2"
+    _, err = p.conn.Exec(context.Background(), q, winner, tradeup.Id)
+    if err != nil {
+        return err
+    }
+
     return nil
 }
-
-

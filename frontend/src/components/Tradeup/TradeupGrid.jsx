@@ -4,6 +4,7 @@ import TradeupModal from "./TradeupModal"
 import useUser from "../../stores/userStore"
 import { removeSkinFromTradeup } from "../../api/tradeups"
 import useInventory from "../../stores/inventoryStore"
+import { LazyLoadImage } from "react-lazy-load-image-component"
 
 function Modal({ invId, tradeupId }) {
   const { inventory, setInventory, addItem, removeItem } = useInventory()
@@ -59,11 +60,12 @@ function GridItem({ id, tradeupId, name, wear, price, isStatTrak, imgSrc, owned,
         <h1 className="text-primary ml-2">${price}</h1>
       )}
       <figure>
-        <img
-          loading="lazy"
-          alt={name}
-          src={imgSrc}
-        />
+        <div>
+          <LazyLoadImage
+            alt={name}
+            src={imgSrc}
+          />
+        </div>
       </figure>
       <div className="card-body items-center">
         <h1 className="card-title text-sm">{name}</h1>

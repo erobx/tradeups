@@ -1,21 +1,23 @@
 import RarityBadge from "../RarityBadge"
 import StatTrakBadge from "../StatTrakBadge"
 import { outlineMap } from "../../constants/rarity"
+import { LazyLoadImage } from "react-lazy-load-image-component"
 
 function InventoryItem({ name, rarity, wear, price, isStatTrak, imgSrc }) {
   const outlineColor = outlineMap[rarity]
 
   return (
     <div
-      className={`card card-xs w-52 bg-base-200 shadow-md hover:outline-4 ${outlineColor}`}
+      className={`card card-xs w-52 bg-base-200 shadow-md cursor-pointer hover:outline-4 ${outlineColor}`}
     >
       <h1 className="text-primary ml-1.5">${parseFloat(price).toFixed(2)}</h1>
       <figure>
-        <img
-          loading="eager"
-          alt={name}
-          src={imgSrc}
-        />
+        <div>
+          <LazyLoadImage
+            alt={name}
+            src={imgSrc}
+          />
+        </div>
       </figure>
       <div className="card-body items-center">
         <h1 className="card-title text-xs">{name}</h1>

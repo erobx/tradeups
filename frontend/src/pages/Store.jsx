@@ -11,8 +11,6 @@ function Store() {
         </p>
       </div>
 
-      <div className="divider"></div>
-
       <div className="flex flex-col items-center gap-2">
 
         <h1 className="font-bold text-xl ml-4.5">Crates containing 3 skins:</h1>
@@ -29,9 +27,9 @@ function Store() {
         <h1 className="font-bold text-xl ml-4.5">Crates containing 5 skins:</h1>
         <div className="flex justify-start ml-4">
           <div className="flex gap-6">
-            <Crate name="ConOne" rarity="Consumer" count={5} />
-            <Crate name="IndOne" rarity="Industrial" count={5} />
-            <Crate name="MilOne" rarity="Mil-Spec" count={5} />
+            <Crate name="Consumer Pack" rarity="Consumer" count={5} />
+            <Crate name="Industrial Pack" rarity="Industrial" count={5} />
+            <Crate name="Mil-Spec Pack" rarity="Mil-Spec" count={5} />
           </div>
         </div>
 

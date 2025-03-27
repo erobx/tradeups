@@ -21,7 +21,7 @@ function Crate({ name, rarity, count }) {
   }
 
   return (
-    <div className="card bg-base-300 w-64 shadow-sm">
+    <div className="card card-md bg-base-300 w-68 shadow-sm">
       <div className="card-body">
         <h2 className="card-title">
           {name}

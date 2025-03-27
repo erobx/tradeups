@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react"
+import { LazyLoadImage } from "react-lazy-load-image-component"
 
 const imgWidth = 150
 const imgHeight = 150
@@ -34,13 +35,14 @@ function ItemCarousel({ skins }) {
       {
         skins.map((skin, index) => (
           <div key={index} className="carousel-item">
-            <img
-              loading="eager"
-              width={imgWidth}
-              height={imgHeight}
-              src={skin.imageSrc}
-              alt={skin.imageSrc}
-            />
+            <div>
+              <LazyLoadImage
+                width={imgWidth}
+                height={imgHeight}
+                src={skin.imageSrc}
+                alt={skin.imageSrc}
+              />
+            </div>
           </div>
         ))
       }
