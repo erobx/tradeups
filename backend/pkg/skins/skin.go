@@ -2,6 +2,16 @@ package skins
 
 import "time"
 
+type RawSkin struct {
+    Name       string  `json:"name"`
+	Rarity      string  `json:"rarity"`
+	Collection string  `json:"collection"`
+	MinFloat   float64 `json:"minFloat"`
+	MaxFloat   float64 `json:"maxFloat"`
+	CanBeStatTrak bool `json:"canBeStatTrak"`
+	ImageKey string `json:"imageKey"`
+}
+
 type Skin struct {
 	Name       string  `json:"name"`
 	Rarity      string  `json:"rarity"`

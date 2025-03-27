@@ -1,18 +1,32 @@
 import { useEffect, useState } from "react"
 import StatItem from "./StatItem"
+import { getStats } from "../../api/user"
 
-function Stats() {
-  //const [winnings, setWinnings] = useState([])
-  const [entered, setEntered] = useState(50)
-  const [won, setWon] = useState(10)
-  const [earnings, setEarnings] = useState(32.41)
+function Stats({ user }) {
+  const [winnings, setWinnings] = useState([])
+  const [entered, setEntered] = useState(0)
+  const [won, setWon] = useState(0)
+  const [earnings, setEarnings] = useState(0)
+  
+  const fetchStats = async () => {
+    const jwt = localStorage.getItem("jwt")
+    try {
+      const data = await getStats(jwt, user.id)
+      if (data) {
+        setEntered(data.tradeupsEntered)
+        setWon(data.tradeupsWon)
+        if (data.recentWinnings) {
+          setWinnings(data.recentWinnings)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching stats: ", error)
+    }
+  }
 
-  const winnings = [
-      {id: 0, name: "AK-47 | Slate", wear: "Factory New", rarity: "Classified", isStatTrak: true, imgSrc: "/ak-slate.png", price: 37.21},
-      {id: 0, name: "Five-SeveN | Candy Apple", wear: "Minimal Wear", rarity: "Restricted", isStatTrak: false, imgSrc: "/fs-candy-apple.png", price: 15.32},
-      {id: 0, name: "Five-SeveN | Candy Apple", wear: "Minimal Wear", rarity: "Restricted", isStatTrak: false, imgSrc: "/fs-candy-apple.png", price: 15.32},
-      {id: 0, name: "AK-47 | Slate", wear: "Factory New", rarity: "Classified", isStatTrak: true, imgSrc: "/ak-slate.png", price: 37.21},
-    ]
+  useEffect(() => {
+    fetchStats()
+  }, [])
   
   return (
     <div className="flex flex-col items-center">
@@ -20,16 +34,21 @@ function Stats() {
         <div className="stat">
           <div className="stat-title">Recent winnings</div>
           <div className="flex">
-            {winnings.map((skin, index) => (
-              <StatItem
-                name={skin.name}
-                wear={skin.wear}
-                rarity={skin.rarity}
-                isStatTrak={skin.isStatTrak}
-                imgSrc={skin.imgSrc}
-                price={skin.price}
-              />
-            ))}
+            {winnings.length === 0 ? (
+              <div>No winnings</div>
+            ) : (
+              winnings.map((skin, index) => (
+                <StatItem
+                  key={index}
+                  name={skin.name}
+                  wear={skin.wear}
+                  rarity={skin.rarity}
+                  isStatTrak={skin.isStatTrak}
+                  imgSrc={skin.imageSrc}
+                  price={skin.price}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>

@@ -27,6 +27,7 @@ function App() {
       setLoggedIn(true)
       const userData = await getUser(jwt)
       setUser(userData.user)
+      setBalance(userData.user.balance)
       loadItems(jwt, userData.user.id)
     }
     setLoading(false)

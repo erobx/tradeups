@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand/v2"
 	"time"
 
 	"github.com/erobx/tradeups/backend/pkg/skins"
@@ -160,15 +161,6 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
         return t, err
     }
 
-    // timer expired
-    if time.Now().After(t.StopTime) {
-        q = "update tradeups set current_status = 'In Progress' where id=$1"
-        _, err = p.conn.Exec(context.Background(), q, id)
-        if err != nil {
-            return t, err
-        }
-    }
-
     for _, skin := range t.Skins {
         if skin.ImageSrc != "" {
             imageKeys = append(imageKeys, skin.ImageSrc)
@@ -181,6 +173,21 @@ func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
         if url, exists := urlMap[t.Skins[i].ImageSrc]; exists {
             t.Skins[i].ImageSrc = url
         }
+    }
+
+    if t.Status == "Completed" {
+        return t, nil
+    }
+
+    // timer expired
+    if time.Now().After(t.StopTime) {
+        q = "update tradeups set current_status = 'In Progress' where id=$1"
+        _, err = p.conn.Exec(context.Background(), q, id)
+        if err != nil {
+            return t, err
+        }
+
+        p.decideWinner(t)
     }
 
     return t, nil
@@ -226,7 +233,7 @@ func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error
     }
 
     if numSkins == 10 {
-        q = "update tradeups set stop_time=now() + interval '5 min' where id=$1"
+        q = "update tradeups set stop_time=now() + interval '10 sec' where id=$1"
         _, err = p.conn.Exec(context.Background(), q, tradeupId)
         log.Printf("Started timer for tradeup %s\n", tradeupId)
         if err != nil {
@@ -304,3 +311,47 @@ func (p *PostgresDB) CreateTradeup(rarity string) error {
 
     return nil
 }
+
+func (p *PostgresDB) decideWinner(tradeup tradeups.Tradeup) error {
+    // TODO: come up with algo
+    // for now percentage split
+    // ex: 8/10, 2/10 => user1 has 80%, user2 has 20%
+    
+    usersSkins := make(map[string]int)
+    // group the skins based on the userId
+    for _, skin := range tradeup.Skins {
+        _, ok := usersSkins[skin.UserId]
+        if ok {
+            usersSkins[skin.UserId] += 1
+        } else {
+            usersSkins[skin.UserId] = 1
+        }
+    }
+
+    var winner string
+    randomNum := rand.IntN(100)
+    currWeight := 0
+    
+    for player, weight := range usersSkins {
+        currWeight += weight * 10
+        if randomNum < currWeight {
+            winner = player
+        }
+    }
+
+    log.Printf("User %s won!\n", winner)
+
+    // generate new skin based on next rarity and value
+
+    q := `
+    update tradeups set current_status = 'Completed' where id=$1
+    `
+    _, err := p.conn.Exec(context.Background(), q, tradeup.Id)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
+

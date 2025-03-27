@@ -6,10 +6,8 @@ import Dashboard from "../components/Dashboard/Dashboard"
 
 function DashboardPage() {
   return (
-    <div className="flex justify-evenly gap-2">
-      <div>
-        <DashboardDrawer />
-      </div>
+    <div className="flex gap-2">
+      <DashboardDrawer />
       <div className="mt-2">
         <Routes>
           <Route path="/" element={<Dashboard />} />

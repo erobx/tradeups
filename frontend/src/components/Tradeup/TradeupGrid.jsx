@@ -35,11 +35,11 @@ function Modal({ invId, tradeupId }) {
   )
 }
 
-function GridItem({ id, tradeupId, name, wear, price, isStatTrak, imgSrc, owned }) {
+function GridItem({ id, tradeupId, name, wear, price, isStatTrak, imgSrc, owned, status }) {
   const outlineColor = owned ? "outline-accent" : "outline-error"
 
   const onSelect = () => {
-    if (owned) {
+    if (owned && status === "Active") {
       document.getElementById(`modal_${id}`).showModal()
     }
   }
@@ -89,7 +89,7 @@ function EmptyGridItem({ tradeupId, rarity }) {
   )
 }
 
-function TradeupGrid({ tradeupId, rarity, skins }) {
+function TradeupGrid({ tradeupId, rarity, skins, status }) {
   const { user, setUser, setBalance } = useUser()
 
   const skinsWithOwnership = useMemo(() => {
@@ -113,6 +113,7 @@ function TradeupGrid({ tradeupId, rarity, skins }) {
           isStatTrak={s.isStatTrak}
           imgSrc={s.imageSrc}
           owned={s.owned}
+          status={status}
         />
       ))}
       {skins.length < 10 && (

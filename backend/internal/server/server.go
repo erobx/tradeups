@@ -33,15 +33,15 @@ func NewServer(addr string, db *db.PostgresDB) *Server {
 }
 
 func (s *Server) Run() error {
-	if err := s.UseMiddleware(); err != nil {
+	if err := s.useMiddleware(); err != nil {
 		log.Fatalf("An error has occurred serving middleware: %v", err)
 	}
 
-	if err := s.MapHandlers(); err != nil {
+	if err := s.mapHandlers(); err != nil {
 		log.Fatalf("An error has occurred mapping the handlers: %v", err)
 	}
 
-	//s.GenerateKeys()
+	//s.generateKeys()
 	
 	go func() {
 		if err := s.fiber.Listen(":"+s.addr); err != nil {
@@ -60,7 +60,7 @@ func (s *Server) Run() error {
 	return nil
 }
 
-func (s *Server) UseMiddleware() error {
+func (s *Server) useMiddleware() error {
 	s.fiber.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"http://localhost:5173"},
 		AllowCredentials: true,
@@ -70,7 +70,7 @@ func (s *Server) UseMiddleware() error {
 	return nil
 }
 
-func (s *Server) MapHandlers() error {
+func (s *Server) mapHandlers() error {
     // Auth
 	auth := s.fiber.Group("/auth")
 	auth.Post("/register", handlers.Register(s.db))
@@ -80,15 +80,21 @@ func (s *Server) MapHandlers() error {
 
     // User
     users := api.Group("/users")
+
     users.Get("/", handlers.GetUser(s.db), middleware.Protected())
 	users.Get("/:userId", handlers.GetUser(s.db), middleware.Protected())
 	users.Get("/:userId/inventory", handlers.GetInventory(s.db), middleware.Protected())
+    users.Get("/:userId/recent", handlers.GetRecentTradeups(s.db), middleware.Protected())
+    users.Get("/:userId/stats", handlers.GetUserStats(s.db), middleware.Protected())
+
     users.Delete("/:userId/inventory/:invId", handlers.DeleteSkin(s.db), middleware.Protected())
 
     // Tradeups
     tradeups := api.Group("/tradeups")
+
     tradeups.Get("/", handlers.GetActiveTradeupsSSE(s.db))
     tradeups.Get("/:tradeupId", handlers.GetTradeupSSE(s.db))
+
     tradeups.Post("/new", handlers.NewTradeup(s.db), middleware.Admin())
     tradeups.Put("/add", handlers.AddSkinToTradeup(s.db), middleware.Protected())
     tradeups.Delete("/remove", handlers.RemoveSkinFromTradeup(s.db), middleware.Protected())
@@ -100,7 +106,7 @@ func (s *Server) MapHandlers() error {
 	return nil
 }
 
-func (s *Server) GenerateKeys() {
+func (s *Server) generateKeys() {
 	privateKey, _ := ecdsa.GenerateKey(elliptic.P521(), rand.Reader)
     publicKey := &privateKey.PublicKey
 	encPriv, encPub := encode(privateKey, publicKey)

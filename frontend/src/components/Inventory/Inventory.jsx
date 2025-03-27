@@ -82,6 +82,11 @@ function Inventory() {
     setCurrentPage(1)
   }
 
+  // TODO: allow bulk deletes
+  const enterDeleteMode = () => {
+
+  }
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -115,7 +120,7 @@ function Inventory() {
         ))}
       </div>
 
-      <div className="w-full lg:w-64 lg:ml-4 order-1 lg:order-2 mb-4 lg:mb-0">
+      <div className="w-full lg:w-fit lg:ml-30 lg:mb-0">
         <div className="card flex flex-col items-center gap-3 bg-base-200 p-4 w-full">
           <h1 className="font-bold text-lg">Filters</h1>
           <form className="filter" onClick={handleFilter}>
@@ -130,7 +135,7 @@ function Inventory() {
         </div>
       </div>
 
-      <div className="fixed bottom-4 right-4 z-50 order-3">
+      <div className="fixed bottom-4 right-8 z-50">
         <div className="join">
           <button className="join-item btn" onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>«</button>
           <div className="join-item btn"> 

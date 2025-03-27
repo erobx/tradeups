@@ -13,6 +13,7 @@ type Tradeup struct {
     StopTime time.Time `json:"stopTime"`
     Skins []skins.TradeupSkin `json:"skins"`
     Players []Player `json:"players"`
+    Value float64 `json:"value"`
 }
 
 type Player struct {

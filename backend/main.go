@@ -27,5 +27,3 @@ func main() {
 		log.Fatalf("Server could not be ran: %v", err)
 	}
 }
-
-

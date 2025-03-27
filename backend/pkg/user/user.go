@@ -35,10 +35,6 @@ type Stats struct {
     TradeupsWon int `json:"tradeupsWon"`
 }
 
-type RecentTradeups struct {
-
-}
-
 type RegisteredUserPayload struct {
 	Email string `json:"email"`
 	Password string `json:"password"`

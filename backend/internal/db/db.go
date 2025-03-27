@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/erobx/tradeups/backend/pkg/url"
+	"github.com/erobx/tradeups/backend/internal/url"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

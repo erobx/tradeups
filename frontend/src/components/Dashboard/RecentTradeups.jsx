@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { textMap } from "../../constants/rarity"
 import { useNavigate } from "react-router"
+import { getRecentTradeups } from "../../api/user"
 
 function ListRow({ tradeupId, rarity, status, skins, value }) {
   const navigate = useNavigate()
@@ -19,6 +20,8 @@ function ListRow({ tradeupId, rarity, status, skins, value }) {
       case "Completed":
         setStatusColor("text-success")
         break
+      default:
+        setStatusColor("text-accent")
     }
   }, [status])
 
@@ -26,58 +29,91 @@ function ListRow({ tradeupId, rarity, status, skins, value }) {
     <li className="list-row">
       <div>
         <div className="font-bold">Rarity</div>
-        <div className={`${textColor}`}>{rarity}</div>
+        <div className={`${textColor} font-bold`}>{rarity}</div>
       </div>
 
       <div>
         <div className="font-bold">Status</div>
-        <div className={`${statusColor}`}>{status}</div>
+        <div className={`${statusColor} font-bold`}>{status}</div>
       </div>
 
-      <div className="min-w-[300px]">
-        <div className="font-bold">Skins Invested</div>
-        {skins.map(s => (
-          <div key={s.id} className="text-warning">{s.name} ({s.wear})</div>
+      <div className="min-w-[300px] max-h-[100px] overflow-y-auto">
+        <div className="font-bold sticky top-0 bg-base-300 z-10 pb-2">Skins Invested</div>
+        {skins.map((s, index) => (
+          <div
+            key={s.inventoryId}
+            className={`
+              ${index % 2 === 0 ? 'text-accent' : ''}
+            `}>
+            {s.name} ({s.wear})
+          </div>
         ))}
       </div>
 
-    <div>
+      <div className="ml-10 mr-10">
         <div className="font-bold">Value</div>
-        <div className="text-primary">${value}</div>
+        <div className="font-bold text-primary">${value.toFixed(2)}</div>
       </div>
 
-      <div>
+      <div className="mr-8">
         <button className="btn btn-soft btn-primary" onClick={logTradeupId}>Go To</button>
       </div>
     </li>
   )
 }
 
-function RecentTradeups() {
-  const skins1 = [
-    {id: 0, name: "AK-47 | Slate", wear: "Factory New"},
-    {id: 1, name: "Desert Eagle | Printstream", wear: "Factory New"},
-  ]
+function RecentTradeups({ user }) {
+  const [rows, setRows] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
 
-  const skins2 = [
-    {id: 0, name: "M4A4 | Howl", wear: "Factory New"},
-    {id: 1, name: "M4A1-S | Black Lotus", wear: "Minimal Wear"},
-  ]
+  const fetchRecentTradeups = async () => {
+    try {
+      setIsLoading(true)
+      const jwt = localStorage.getItem("jwt")
+      const data = await getRecentTradeups(jwt, user.id)
+      setRows(data)
+    } catch (error) {
+      console.error("Failed to fetch recent tradeups: ", error);
+      setError(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-  const rows = [
-    {id: 1, rarity: "Consumer", status: "Active", skins: skins1, value: 35.21},
-    {id: 2, rarity: "Industrial", status: "Completed", skins: skins2, value: 121.01},
-  ]
+  useEffect(() => {
+    fetchRecentTradeups()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="w-fit bg-base-300 rounded-box shadow-md">
+        <div className="p-4 text-center">Loading trade ups...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="w-fit bg-base-300 rounded-box shadow-md">
+        <div className="p-4 text-red-500">Error: {error}</div>
+      </div>
+    )
+  }
+
+  if (rows.length === 0) {
+    return (
+      <div className="w-fit bg-base-300 rounded-box shadow-md">
+        <div className="p-4 text-center">No recent trade ups found</div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-fit bg-base-300 rounded-box shadow-md">
       <ul className="list">
         <div className="flex items-center">
           <li className="p-4 pb-2 text-sm opacity-70 tracking-wide">Recent Trade Ups</li>
-          {/* TODO: filter by rarity, status, money
-          <li>
-          </li>
-          */}
         </div>
         {rows.map((r, index) => (
           <ListRow

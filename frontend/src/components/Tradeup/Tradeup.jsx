@@ -48,10 +48,10 @@ function Tradeup() {
         <span className="font-bold">—</span>
         <span className="font-bold text-2xl text-info">{tradeup.status}</span>
       </div>
-      {tradeup.skins.length === 10 && (
+      {tradeup.skins.length === 10 && tradeup.status === 'Active' && (
         <div className="font-bold text-lg">Tradeup Closes In: <CountdownTimer stopTime={tradeup.stopTime} /></div>
       )}
-      <TradeupGrid tradeupId={tradeupId} rarity={tradeup.rarity} skins={tradeup.skins} />
+      <TradeupGrid tradeupId={tradeupId} rarity={tradeup.rarity} skins={tradeup.skins} status={tradeup.status} />
     </div>
   )
 }
