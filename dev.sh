@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-start_bun() {
-    bun run dev
+start_client() {
+    (cd frontend/; bun run dev)
 }
 
 start_server() {
@@ -9,4 +9,5 @@ start_server() {
     docker logs --follow tradeups_api
 }
 
-start_server
+tmux new-window -n zsh
+start_client # Starts client in same window as script

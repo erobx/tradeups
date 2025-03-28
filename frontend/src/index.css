@@ -174,3 +174,31 @@ body, html {
 .text-contraband {
     color: var(--contraband);
 }
+
+.btn-consumer {
+    color: var(--consumer);
+}
+
+.btn-industrial {
+    color: var(--industrial);
+}
+
+.btn-milspec {
+    color: var(--milspec);
+}
+
+.btn-restricted {
+    color: var(--restricted);
+}
+
+.btn-classified {
+    color: var(--classified);
+}
+
+.btn-covert {
+    color: var(--covert);
+}
+
+.btn-contraband {
+    color: var(--contraband);
+}

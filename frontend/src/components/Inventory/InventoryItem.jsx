@@ -8,7 +8,7 @@ function InventoryItem({ name, rarity, wear, price, isStatTrak, imgSrc }) {
 
   return (
     <div
-      className={`card card-xs w-52 bg-base-200 shadow-md cursor-pointer hover:outline-4 ${outlineColor}`}
+      className={`card card-xs w-54 bg-base-200 shadow-md cursor-pointer hover:outline-4 ${outlineColor}`}
     >
       <h1 className="text-primary ml-1.5">${parseFloat(price).toFixed(2)}</h1>
       <figure>

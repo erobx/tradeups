@@ -100,7 +100,7 @@ function Inventory() {
   }
 
   return (
-    <div className="flex flex-col gap-3 lg:flex-row">
+    <div className="flex flex-col lg:flex-row">
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 flex-grow">
         {currentItems.map((item) => (
           <div key={item.id} className="item" onClick={() => document.getElementById(`modal_${item.id}`).showModal()}>
@@ -124,13 +124,13 @@ function Inventory() {
         <div className="card flex flex-col items-center gap-3 bg-base-200 p-4 w-full">
           <h1 className="font-bold text-lg">Filters</h1>
           <form className="filter" onClick={handleFilter}>
-            <input className="btn btn-square" type="reset" value="×"/>
-            <input className="btn btn-info" type="radio" name="frameworks" aria-label="Rarity"/>
-            <input className="btn btn-accent" type="radio" name="frameworks" aria-label="Wear"/>
-            <input className="btn btn-warning" type="radio" name="frameworks" aria-label="Price"/>
+            <input className="btn btn-soft btn-square" type="reset" value="×"/>
+            <input className="btn btn-soft btn-info" type="radio" name="frameworks" aria-label="Rarity"/>
+            <input className="btn btn-soft btn-accent" type="radio" name="frameworks" aria-label="Wear"/>
+            <input className="btn btn-soft btn-warning" type="radio" name="frameworks" aria-label="Price"/>
           </form>
           <div>
-            <button className="btn btn-error">Enter delete mode</button>
+            <button className="btn btn-soft btn-error">Enter delete mode</button>
           </div>
         </div>
       </div>

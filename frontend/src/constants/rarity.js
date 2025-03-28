@@ -65,3 +65,13 @@ export const textMap = {
     "Covert": "text-covert",
     "Contraband": "text-contraband",
 }
+
+export const btnMap = {
+    "Consumer": "btn-consumer",
+    "Industrial": "btn-industrial",
+    "Mil-Spec": "btn-milspec",
+    "Restricted": "btn-restricted",
+    "Classified": "btn-classified",
+    "Covert": "btn-covert",
+    "Contraband": "btn-contraband",
+}

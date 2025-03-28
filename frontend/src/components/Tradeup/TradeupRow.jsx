@@ -46,7 +46,7 @@ function PlayersPanel({ players }) {
   return (
     <div className="card card-sm">
       <div className="card-body justify-center">
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col gap-1.5 items-center">
           <div className="card-title">
             Players
           </div>
