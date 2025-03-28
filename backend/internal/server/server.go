@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/erobx/tradeups/backend/internal/db"
 	"github.com/erobx/tradeups/backend/internal/middleware"
@@ -41,6 +42,9 @@ func (s *Server) Run() error {
 		log.Fatalf("An error has occurred mapping the handlers: %v", err)
 	}
 
+    // constantly check tradeups in progress, decide winner 
+    go s.watchTradeups()
+    go s.maintainTradeupCounts()
 	//s.generateKeys()
 	
 	go func() {
@@ -104,6 +108,59 @@ func (s *Server) mapHandlers() error {
     store.Post("/buy", handlers.BuyCrate(s.db), middleware.Protected())
 
 	return nil
+}
+
+func (s *Server) watchTradeups() {
+    ticker := time.NewTicker(500 * time.Millisecond)
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-ticker.C:
+            // get tradeups who timers have expired
+            activeTradeups, err := s.db.FindReadyActiveTradeups()
+            if err != nil {
+                log.Printf("Error finding ready active tradeups: %v\n", err)
+                continue
+            }
+
+            if len(activeTradeups) > 0 {
+                err = s.db.UpdateTradeupsToInProgress(activeTradeups)
+                if err != nil {
+                    log.Printf("Error updating tradeups to In Progress: %v\n", err)
+                }
+            }
+
+            tradeups, err := s.db.GetTradeupsInProgress()
+            if err != nil {
+                log.Printf("Error fetching tradeups in progress: %v\n", err)
+                continue
+            }
+            
+            if len(tradeups) > 0 {
+                err = s.db.ProcessTradeupWinners(tradeups)
+                if err != nil {
+                    log.Printf("Error processing tradeup winners: %v\n", err)
+                }
+            }
+        }
+    }
+}
+
+func (s *Server) maintainTradeupCounts() {
+    ticker := time.NewTicker(1 * time.Minute)
+    defer ticker.Stop()
+
+    for {
+        select {
+        case <-ticker.C:
+            err := s.db.MaintainTradeupCount()
+            if err != nil {
+                log.Printf("Error maintaining tradeup counts: %v\n", err)
+                continue
+            }
+        }
+    }
 }
 
 func (s *Server) generateKeys() {

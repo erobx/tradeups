@@ -56,7 +56,7 @@ function ListRow({ tradeupId, rarity, status, skins, value }) {
       </div>
 
       <div className="mr-8">
-        <button className="btn btn-soft btn-primary" onClick={logTradeupId}>Go To</button>
+        <button className="btn btn-soft btn-warning" onClick={logTradeupId}>View</button>
       </div>
     </li>
   )

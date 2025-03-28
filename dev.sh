@@ -9,5 +9,4 @@ start_server() {
     docker logs --follow tradeups_api
 }
 
-tmux new-window -n zsh
-start_client # Starts client in same window as script
+start_server

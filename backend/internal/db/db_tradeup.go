@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand/v2"
-	"time"
 
 	"github.com/erobx/tradeups/backend/pkg/skins"
 	"github.com/erobx/tradeups/backend/pkg/tradeups"
@@ -69,15 +68,6 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 			return activeTradeups, err
 		}
 
-        // timer expired
-        if time.Now().After(t.StopTime) {
-            q = "update tradeups set current_status = 'In Progress' where id=$1"
-            _, err = p.conn.Exec(context.Background(), q, t.Id)
-            if err != nil {
-                return activeTradeups, err
-            }
-        }
-
         for _, skin := range tempSkins {
             if skin.ImageSrc != "" {
                 imageKeys = append(imageKeys, skin.ImageSrc)
@@ -108,89 +98,45 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 }
 
 func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
-    var t tradeups.Tradeup
-    q := `
-    select t.id tradeup_id, t.rarity, t.current_status, t.stop_time,
-	coalesce(
-		jsonb_agg(
-			distinct jsonb_build_object(
-				'username', u.username,
-				'avatar', u.avatar_key
-			) 
-		) filter (where u.id is not null), '[]'
-	) as players,
-	coalesce(
-		json_agg(
-			json_build_object(
-				'inventoryId', ts.inv_id,
-                'userId', u.id,
-				'price', (select round(cast(i.price as numeric),2)),
-                'name', s.name,
-                'wear', i.wear_str,
-                'skinFloat', i.wear_num,
-                'isStatTrak', i.is_stattrak,
-				'imageSrc', s.image_key,
-                'createdAt', to_char(i.created_at, 'YYYY/MM/DD HH12:MI:SS')
-			)
-		) filter (where ts.inv_id is not null), '[]'
-	) as skins
-	from tradeups t
-	left join tradeups_skins ts on t.id = ts.tradeup_id
-	left join inventory i on ts.inv_id = i.id
-	left join skins s on i.skin_id = s.id
-	left join users u on i.user_id = u.id
-	where t.id = $1
-    group by t.id
-    `
-
-    var playersJson, skinsJson []byte
-    var imageKeys []string
-    row := p.conn.QueryRow(context.Background(), q, id)
-    err := row.Scan(&t.Id, &t.Rarity, &t.Status, &t.StopTime, &playersJson, &skinsJson)
+    t, err := p.getTradeup(id)
     if err != nil {
         return t, err
-    }
-
-    err = json.Unmarshal(playersJson, &t.Players)
-    if err != nil {
-        return t, err
-    }
-
-    err = json.Unmarshal(skinsJson, &t.Skins)
-    if err != nil {
-        return t, err
-    }
-
-    for _, skin := range t.Skins {
-        if skin.ImageSrc != "" {
-            imageKeys = append(imageKeys, skin.ImageSrc)
-        }
-    }
-
-    urlMap := p.urlManager.GetUrls(imageKeys)
-
-    for i := range t.Skins {
-        if url, exists := urlMap[t.Skins[i].ImageSrc]; exists {
-            t.Skins[i].ImageSrc = url
-        }
     }
 
     if t.Status == "Completed" {
         return t, nil
     }
 
-    // timer expired
-    if time.Now().After(t.StopTime) {
-        q = "update tradeups set current_status = 'In Progress' where id=$1"
-        _, err = p.conn.Exec(context.Background(), q, id)
-        if err != nil {
-            return t, err
-        }
+    return t, nil
+}
 
-        p.decideWinner(t)
+func (p *PostgresDB) FindReadyActiveTradeups() ([]string, error) {
+    var readyTradeupIds []string
+    q := "select id from tradeups where current_status='Active' and now() >= stop_time"
+    rows, err := p.conn.Query(context.Background(), q)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    for rows.Next() {
+        var id string
+        if err := rows.Scan(&id); err != nil {
+            return nil, err
+        }
+        readyTradeupIds = append(readyTradeupIds, id)
     }
 
-    return t, nil
+    return readyTradeupIds, rows.Err()
+}
+
+func (p *PostgresDB) UpdateTradeupsToInProgress(tradeupIds []string) error {
+    q := `
+    update tradeups set current_status = 'In Progress'
+    where id = any($1)
+    `
+    _, err := p.conn.Exec(context.Background(), q, tradeupIds)
+    return err
 }
 
 func (p *PostgresDB) TradeupIsFull(tradeupId string) error {
@@ -312,6 +258,27 @@ func (p *PostgresDB) CreateTradeup(rarity string) error {
     return nil
 }
 
+// Loop through all rarities, ensuring there's always 3 tradeups of each rarity
+func (p *PostgresDB) MaintainTradeupCount() error {
+    rarities := []string{"Consumer", "Industrial", "Mil-Spec", "Restricted", "Classified"}
+    
+    for _, r := range rarities {
+        var count int
+        q := "select count(*) from tradeups where current_status = 'Active' and rarity = $1"
+        if err := p.conn.QueryRow(context.Background(), q, r).Scan(&count); err != nil {
+            return err
+        }
+        
+        if count < 3 {
+            if err := p.CreateTradeup(r); err != nil {
+                return err
+            }
+        }
+    }
+    return nil
+}
+
+// Main winner logic
 func (p *PostgresDB) decideWinner(tradeup tradeups.Tradeup) error {
     // TODO: come up with algo
     // for now percentage split
@@ -336,25 +303,73 @@ func (p *PostgresDB) decideWinner(tradeup tradeups.Tradeup) error {
         currWeight += weight * 10
         if randomNum < currWeight {
             winner = player
+            break
         }
     }
 
     log.Printf("User %s won!\n", winner)
 
-    // generate new skin based on next rarity and value
-    q := `
-    update tradeups set current_status = 'Completed' where id=$1
-    `
-    _, err := p.conn.Exec(context.Background(), q, tradeup.Id)
-    if err != nil {
-        return err
-    }
-
-    q = "update tradeups set winner=$1 where id=$2"
-    _, err = p.conn.Exec(context.Background(), q, winner, tradeup.Id)
+    q := "update tradeups set current_status='Completed', winner=$1 where id=$2"
+    _, err := p.conn.Exec(context.Background(), q, winner, tradeup.Id)
     if err != nil {
         return err
     }
 
     return nil
 }
+
+func (p *PostgresDB) GetTradeupsInProgress() ([]tradeups.Tradeup, error) {
+    var tradeupsInProgress []tradeups.Tradeup
+    // get all tradeups with status In Progress
+    q := "select id from tradeups where current_status='In Progress'"
+    rows, err := p.conn.Query(context.Background(), q)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var tradeupIds []string
+    for rows.Next() {
+        var id string
+        err := rows.Scan(&id)
+        if err != nil {
+            return nil, err
+        }
+        tradeupIds = append(tradeupIds, id)
+    }
+
+    if err = rows.Err(); err != nil {
+        return nil, err
+    }
+
+    for _, id := range tradeupIds {
+        tradeup, err := p.getTradeup(id)
+        if err != nil {
+            continue
+        }
+        tradeupsInProgress = append(tradeupsInProgress, tradeup)
+    }
+
+    return tradeupsInProgress, nil
+}
+
+func (p *PostgresDB) ProcessTradeupWinners(toProcess []tradeups.Tradeup) error {
+    tx, err := p.conn.Begin(context.Background())
+    if err != nil {
+        return err
+    }
+    defer func() {
+        if err != nil {
+            tx.Rollback(context.Background())
+            return
+        }
+        err = tx.Commit(context.Background())
+    }()
+
+    for _, t := range toProcess {
+        p.decideWinner(t)
+    }
+
+    return nil
+}
+

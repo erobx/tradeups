@@ -27,7 +27,8 @@ function ActiveTradeups() {
         "Industrial",
         "Mil-Spec",
         "Restricted",
-        "Classified"
+        "Classified",
+        "Covert"
       ]
 
       // Extract unique status options
