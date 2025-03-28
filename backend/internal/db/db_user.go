@@ -39,7 +39,8 @@ func (p *PostgresDB) CreateUser(u *user.User) (user.UserData, error) {
     created_at, balance
     `
 	row := p.conn.QueryRow(context.Background(), q, u.Uuid, u.Username, u.Email, u.Hash, time.Now())
-    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey, &userData.RefreshTokenVersion, &userData.CreatedAt, &userData.Balance)
+    err := row.Scan(&userData.Id, &userData.Username, &userData.Email, &avatarKey,
+                &userData.RefreshTokenVersion, &userData.CreatedAt, &userData.Balance)
 
     if avatarKey != "" {
         urlMap := p.urlManager.GetUrls([]string{avatarKey})
@@ -47,10 +48,11 @@ func (p *PostgresDB) CreateUser(u *user.User) (user.UserData, error) {
             avatarKey = key
         }
     }
+
     userData.AvatarSrc = avatarKey
 
     // give user random skins
-    _, _, err = p.BuyCrate(u.Uuid.String(), "ConOG", "Consumer", 8)
+    _, _, err = p.BuyCrate(u.Uuid.String(), "Series Zero Core", "Consumer", 8)
     if err != nil {
         log.Printf("Could not give user %s new skins\n", u.Uuid.String())
     }
@@ -89,14 +91,6 @@ func (p *PostgresDB) GetUser(id string) (user.UserData, error) {
     userData.AvatarSrc = avatarKey
 
 	return userData, err
-}
-
-func (p *PostgresDB) IsUsersSkin(userId string, invId int) bool {
-    var exists bool
-    q := "select exists(select 1 from inventory where user_id=$1 and id=$2)"
-    row := p.conn.QueryRow(context.Background(), q, userId, invId)
-    row.Scan(&exists)
-    return exists
 }
 
 func (p *PostgresDB) GetStats(userId string) (user.Stats, error) {
@@ -219,7 +213,7 @@ func (p *PostgresDB) GetRecentTradeups(userId string) ([]tradeups.Tradeup, error
         td.tradeup_id, td.rarity, td.status, td.total_value
     ORDER BY 
         td.tradeup_id DESC
-    LIMIT 5
+    LIMIT 8
     `
     rows, err := p.conn.Query(context.Background(), q, userId)
     if err != nil {

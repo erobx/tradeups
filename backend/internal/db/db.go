@@ -113,3 +113,23 @@ func (p *PostgresDB) getSkinCount(tradeupId string) (int, error) {
     }
     return numSkins, err
 }
+
+func (p *PostgresDB) tradeupIsFull(tradeupId string) error {
+    numSkins, err := p.getSkinCount(tradeupId)
+    if err != nil {
+        return err
+    }
+
+    if numSkins > 10 {
+        return fmt.Errorf("Tradeup full")
+    }
+    return nil
+}
+
+func (p *PostgresDB) isUsersSkin(userId string, invId int) bool {
+    var exists bool
+    q := "select exists(select 1 from inventory where user_id=$1 and id=$2)"
+    row := p.conn.QueryRow(context.Background(), q, userId, invId)
+    row.Scan(&exists)
+    return exists
+}

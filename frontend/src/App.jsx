@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router"
+
 import Navbar from "./components/Navbar"
 import LandingPage from "./pages/LandingPage"
 import SignUpLogin from "./pages/SignUpLogin"
@@ -7,11 +8,15 @@ import DashboardPage from "./pages/DashboardPage"
 import ActiveTradeups from "./pages/ActiveTradeups"
 import Tradeup from "./components/Tradeup/Tradeup"
 import Store from "./pages/Store"
+import Settings from "./pages/Settings"
+
 import useAuth from "./stores/authStore"
 import useUser from "./stores/userStore"
 import useInventory from "./stores/inventoryStore"
+
 import { getInventory } from "./api/inventory"
 import { getUser } from "./api/user"
+import { themeChange } from "theme-change"
 
 function App() {
   const { loggedIn, setLoggedIn } = useAuth()
@@ -53,6 +58,7 @@ function App() {
 
   useEffect(() => {
     loadUser()
+    themeChange(true)
   }, [])
 
   if (loading) return null
@@ -67,6 +73,7 @@ function App() {
         <Route path="/tradeups" element={<ActiveTradeups />} />
         <Route path="/tradeups/:tradeupId" element={<Tradeup />} />
         <Route path="/dashboard/*" element={loggedIn ? <DashboardPage /> : <SignUpLogin />} />
+        <Route path="/settings" element={loggedIn ? <Settings /> : <SignUpLogin />} />
       </Routes>
     </Router>
   )

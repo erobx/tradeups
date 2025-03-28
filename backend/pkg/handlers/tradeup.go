@@ -42,14 +42,8 @@ func AddSkinToTradeup(p *db.PostgresDB) fiber.Handler {
         //    log.Println("user has added more than 5 skins")
         //    return nil
         //}
-        // check if item user is trying to add belongs to them
-        err := p.TradeupIsFull(payload.TradeupId)
-        if err != nil {
-            log.Println(err)
-            return c.SendStatus(500)
-        }
 
-        err = p.AddSkinToTradeup(jwtUserId, payload.TradeupId, payload.InvId)
+        err := p.AddSkinToTradeup(jwtUserId, payload.TradeupId, payload.InvId)
         if err != nil {
             log.Println(err)
             return c.SendStatus(500)
@@ -77,12 +71,7 @@ func RemoveSkinFromTradeup(p *db.PostgresDB) fiber.Handler {
         }
 
         // check if item user is trying to remove belongs to them
-        exists := p.IsUsersSkin(userId, payload.InvId)
-        if !exists {
-            return c.SendStatus(fiber.StatusForbidden)
-        }
-
-        returnedSkin, err := p.RemoveSkinFromTradeup(payload.TradeupId, payload.InvId)
+        returnedSkin, err := p.RemoveSkinFromTradeup(userId, payload.TradeupId, payload.InvId)
         if err != nil {
             log.Println(err)
             return c.SendStatus(500)

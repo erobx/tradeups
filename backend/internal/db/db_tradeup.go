@@ -139,18 +139,6 @@ func (p *PostgresDB) UpdateTradeupsToInProgress(tradeupIds []string) error {
     return err
 }
 
-func (p *PostgresDB) TradeupIsFull(tradeupId string) error {
-    numSkins, err := p.getSkinCount(tradeupId)
-    if err != nil {
-        return err
-    }
-
-    if numSkins > 10 {
-        return fmt.Errorf("Tradeup full")
-    }
-    return nil
-}
-
 func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error {
     // if the user actually owns the skin to add
     var exists bool
@@ -163,6 +151,11 @@ func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error
     
     if !exists {
         return fmt.Errorf("User does not own that item")
+    }
+
+    err = p.tradeupIsFull(tradeupId)
+    if err != nil {
+        return err
     }
 
     // finally add the skin
@@ -190,10 +183,15 @@ func (p *PostgresDB) AddSkinToTradeup(userId, tradeupId string, invId int) error
     return nil
 }
 
-func (p *PostgresDB) RemoveSkinFromTradeup(tradeupId string, invId int) (skins.InventorySkin, error) {
+func (p *PostgresDB) RemoveSkinFromTradeup(userId, tradeupId string, invId int) (skins.InventorySkin, error) {
     var status string
     var invSkin skins.InventorySkin
     var imageKey string
+
+    exists := p.isUsersSkin(userId, invId)
+    if !exists {
+        return invSkin, fmt.Errorf("Skin does not belong to user")
+    }
 
     // check if status is 'Active'
     q := "select current_status from tradeups where id=$1"
