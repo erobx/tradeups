@@ -83,8 +83,8 @@ func (s *Server) mapHandlers() error {
 	v1 := s.fiber.Group("/v1")
 
     // SSE Test
-    events := v1.Group("/events")
-    events.Get("/inventory/:token", handlers.InventoryUpdates(s.db), middleware.SSE())
+    //events := v1.Group("/events")
+    //events.Get("/inventory/:token", handlers.InventoryUpdates(s.db), middleware.SSE())
 
     // User
     users := v1.Group("/users")
@@ -152,7 +152,7 @@ func (s *Server) watchTradeups() {
 }
 
 func (s *Server) maintainTradeupCounts() {
-    ticker := time.NewTicker(1 * time.Minute)
+    ticker := time.NewTicker(20 * time.Second)
     defer ticker.Stop()
 
     for {

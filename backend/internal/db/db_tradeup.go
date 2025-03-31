@@ -98,7 +98,7 @@ func (p *PostgresDB) GetActiveTradeups() ([]tradeups.Tradeup, error) {
 	return activeTradeups, nil 
 }
 
-func (p *PostgresDB) GetTradeup(id string) (tradeups.Tradeup, error) {
+func (p *PostgresDB) GetTradeup(id int) (tradeups.Tradeup, error) {
     t, err := p.getTradeup(id)
     if err != nil {
         return t, err
@@ -373,9 +373,9 @@ func (p *PostgresDB) GetTradeupsInProgress() ([]tradeups.Tradeup, error) {
     }
     defer rows.Close()
 
-    var tradeupIds []string
+    var tradeupIds []int
     for rows.Next() {
-        var id string
+        var id int
         err := rows.Scan(&id)
         if err != nil {
             return nil, err

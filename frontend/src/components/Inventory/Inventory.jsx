@@ -2,14 +2,14 @@ import InventoryItem from "./InventoryItem"
 import EmptyItem from "../EmptyItem"
 import useInventory from "../../stores/inventoryStore"
 import { usePresignedUrls } from "../../hooks/usePresignedUrls"
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { rarityOrder } from "../../constants/rarity"
 import { wearOrder } from "../../constants/wear"
-import { deleteSkin } from "../../api/inventory"
+import { deleteSkin, getInventory } from "../../api/inventory"
 import useUser from "../../stores/userStore"
 import PageSelector from "./PageSelector"
 
-function Modal({ invId }) {
+function Modal({ invId, removeItem }) {
   const { user, setUser, setBalance } = useUser()
 
   const onClick = async () => {
@@ -18,6 +18,7 @@ function Modal({ invId }) {
     if (res.status !== 204) {
       return
     }
+    removeItem(invId)
     console.log("deleted: ", invId)
   }
 
@@ -35,12 +36,43 @@ function Modal({ invId }) {
 }
 
 function Inventory() {
+  const { user, setUser } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState("")
+  const [lastInventoryHash, setLastInventoryHash] = useState(0)
   const processedInventory = usePresignedUrls(inventory)
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 18
+
+  const createInventoryHash = (items) => {
+    return items.map(item => item.id).sort().join('|')
+  }
+
+  useEffect(() => {
+    const loadInventory = async () => {
+      setLoading(true)
+      const jwt = localStorage.getItem("jwt")
+      try {
+        const data = await getInventory(jwt, user.id)
+
+        if (data.skins) {
+          const freshInventory = data.skins
+          const newHash = createInventoryHash(freshInventory)
+
+          if (newHash !== lastInventoryHash) {
+            setInventory(freshInventory)
+            setLastInventoryHash(newHash)
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch inventory:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadInventory()
+  }, [setInventory, lastInventoryHash])
 
   const sortedInventory = useMemo(() => {
     const sorted = [...processedInventory]
@@ -78,6 +110,26 @@ function Inventory() {
     setCurrentPage(1)
   }
 
+  const refreshInventory = async () => {
+    setLoading(true)
+    const jwt = localStorage.getItem("jwt")
+    try {
+      const data = await getInventory(jwt, user.id)
+      if (data.skins) {
+        const freshInventory = data.skins
+        const newHash = createInventoryHash(freshInventory)
+        if (newHash !== lastInventoryHash) {
+          setInventory(freshInventory)
+          setLastInventoryHash(newHash)
+        }
+      }
+    } catch (error) {
+      console.error("Failed to refresh inventory:", error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   // TODO: allow bulk deletes
   const enterDeleteMode = () => {
 
@@ -110,22 +162,30 @@ function Inventory() {
             />
             <Modal
               invId={item.id}
+              removeItem={removeItem}
             />
           </div>
         ))}
       </div>
 
       <div className="w-full lg:w-fit lg:ml-30 lg:mb-0">
-        <div className="card flex flex-col items-center gap-3 bg-base-200 p-4 w-full">
-          <h1 className="font-bold text-lg">Filters</h1>
+        <div className="card flex flex-col items-center text-center gap-3 bg-base-200 p-4 w-full lg:w-[14vw] lg:mr-2">
+          <h1 className="font-bold text-lg">Settings</h1>
           <form className="filter" onClick={handleFilter}>
             <input className="btn btn-soft btn-square" type="reset" value="×"/>
             <input className="btn btn-soft btn-info" type="radio" name="frameworks" aria-label="Rarity"/>
             <input className="btn btn-soft btn-accent" type="radio" name="frameworks" aria-label="Wear"/>
             <input className="btn btn-soft btn-warning" type="radio" name="frameworks" aria-label="Price"/>
           </form>
-          <div>
-            <button className="btn btn-soft btn-error">Enter delete mode</button>
+          <div className="w-full">
+            <button className="btn btn-soft btn-error w-full">Enter delete mode</button>
+          </div>
+          <div className="w-full">
+            <button 
+              className="btn btn-soft btn-primary w-full" 
+              onClick={refreshInventory}>
+              Refresh Inventory
+            </button>
           </div>
         </div>
       </div>

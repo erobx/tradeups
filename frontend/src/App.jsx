@@ -23,7 +23,6 @@ function App() {
   const { user, setUser, setBalance } = useUser()
   const { inventory, setInventory, addItem, removeItem } = useInventory()
   const [loading, setLoading] = useState(true)
-  const eventSourceRef = useRef(null)
 
   const loadUser = async () => {
     // check if user is logged in
@@ -33,10 +32,7 @@ function App() {
       const userData = await getUser(jwt)
       setUser(userData.user)
       setBalance(userData.user.balance)
-
       await loadItems(jwt, userData.user.id)
-
-      setupEventSource(jwt)
     }
     setLoading(false)
   }
@@ -59,55 +55,9 @@ function App() {
     }
   }
 
-  const setupEventSource = (jwt) => {
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close()
-    }
-
-    const url = "http://localhost:8080/v1/events/inventory/" + jwt
-    const eventSource = new EventSource(url, {
-      withCredentials: true,
-    })
-
-    eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data)
-        
-        if (data.type === 'inventory_update') {
-          if (data.action === 'add' && data.item) {
-            const newItem = {
-              ...data.item,
-              price: parseFloat(data.item.price).toFixed(2)
-            }
-            addItem(newItem)
-          } else if (data.action === 'remove' && data.invId) {
-            removeItem(data.invId)
-          }
-        }
-      } catch (error) {
-        console.error('Error parsing SSE event:', error)
-      }
-    }
-
-    eventSource.onerror = (error) => {
-      console.error('SSE error:', error)
-      eventSource.close()
-
-      setTimeout(() => setupEventSource(jwt), 5000)
-    }
-
-    eventSourceRef.current = eventSource
-  }
-
   useEffect(() => {
     loadUser()
     themeChange(true)
-
-    return () => {
-        if (eventSourceRef.current) {
-          eventSourceRef.current.close()
-        }
-    }
   }, [])
 
   if (loading) return null

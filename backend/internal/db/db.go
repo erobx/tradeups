@@ -2,8 +2,9 @@ package db
 
 import (
 	"context"
-    "encoding/json"
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/erobx/tradeups/backend/internal/url"
@@ -32,7 +33,7 @@ func NewPostgresDB() (*PostgresDB, error) {
     }, nil
 }
 
-func (p *PostgresDB) getTradeup(tradeupId string) (tradeups.Tradeup, error) {
+func (p *PostgresDB) getTradeup(tradeupId int) (tradeups.Tradeup, error) {
     var t tradeups.Tradeup
     q := `
     select t.id tradeup_id, t.rarity, t.current_status, t.stop_time,
@@ -73,6 +74,7 @@ func (p *PostgresDB) getTradeup(tradeupId string) (tradeups.Tradeup, error) {
     row := p.conn.QueryRow(context.Background(), q, tradeupId)
     err := row.Scan(&t.Id, &t.Rarity, &t.Status, &t.StopTime, &playersJson, &skinsJson)
     if err != nil {
+        log.Println("Failing here")
         return t, err
     }
 

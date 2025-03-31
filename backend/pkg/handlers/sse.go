@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/erobx/tradeups/backend/internal/db"
@@ -50,11 +51,32 @@ func GetTradeupSSE(p *db.PostgresDB) fiber.Handler {
 
         log.Printf("Requesting tradeup...\n")
 
-        id := c.Params("tradeupId")
+        id, err := strconv.Atoi(c.Params("tradeupId"))
+        if err != nil {
+            return c.SendStatus(500)
+        }
         // get specific tradeup
-        if id != "" {
-            return c.SendStreamWriter(func(w *bufio.Writer) {
-                for {
+        return c.SendStreamWriter(func(w *bufio.Writer) {
+            ticker := time.NewTicker(250 * time.Millisecond)
+            defer ticker.Stop()
+
+            tradeup, err := p.GetTradeup(id)
+            if err != nil {
+                log.Printf("Error getting tradeup: %v\n", err)
+                return
+            }
+
+            b, _ := json.Marshal(tradeup)
+            fmt.Fprintf(w, "data: %s\n\n", string(b))
+
+            if err := w.Flush(); err != nil {
+                log.Printf("Client disconnected!")
+                return
+            }
+
+            for {
+                select {
+                case <-ticker.C:
                     tradeup, err := p.GetTradeup(id)
                     if err != nil {
                         log.Printf("Error getting tradeup: %v\n", err)
@@ -68,11 +90,8 @@ func GetTradeupSSE(p *db.PostgresDB) fiber.Handler {
                         log.Printf("Client disconnected!")
                         return
                     }
-                    time.Sleep(200 * time.Millisecond)
                 }
-            })
-        }
-        return c.SendStatus(500)
+            }
+        })
     }
-
 }
