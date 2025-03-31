@@ -72,7 +72,9 @@ function RecentTradeups({ user }) {
       setIsLoading(true)
       const jwt = localStorage.getItem("jwt")
       const data = await getRecentTradeups(jwt, user.id)
-      setRows(data)
+      if (data) {
+        setRows(data)
+      }
     } catch (error) {
       console.error("Failed to fetch recent tradeups: ", error);
       setError(error.message)

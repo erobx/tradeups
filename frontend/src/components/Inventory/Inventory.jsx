@@ -148,7 +148,7 @@ function Inventory() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row">
+    <div className="flex flex-col gap-4 lg:flex-row">
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-2 flex-grow">
         {currentItems.map((item) => (
           <div key={item.id} className="item" onClick={() => document.getElementById(`modal_${item.id}`).showModal()}>

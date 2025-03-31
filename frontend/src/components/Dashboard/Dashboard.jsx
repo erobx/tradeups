@@ -6,9 +6,9 @@ function Dashboard() {
   const { user, setUser, setBalance } = useUser()
 
   return (
-    <div className="flex">
+    <div className="flex flex-col items-center mb-5 lg:flex">
       <RecentTradeups user={user} />
-      <div className="divider divider-horizontal"></div>
+      <div className="divider lg:divider-horizontal"></div>
       <Stats user={user} />
     </div>
   )

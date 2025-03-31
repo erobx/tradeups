@@ -6,7 +6,7 @@ import Dashboard from "../components/Dashboard/Dashboard"
 
 function DashboardPage() {
   return (
-    <div className="flex gap-2">
+    <div className="gap-2 lg:flex">
       <DashboardDrawer />
       <div className="mt-2">
         <Routes>
