@@ -81,7 +81,7 @@ func (m *PresignedUrlManager) GetUrls(imageKeys []string) map[string]string {
                 }, func(opts *s3.PresignOptions) {
                         opts.Expires = time.Hour * 24
                     })
-                log.Println("Generated new presigned url for:", key)
+                //log.Println("Generated new presigned url for:", key)
                 if err == nil {
                     mu.Lock()
                     result[key] = out.URL

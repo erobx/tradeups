@@ -45,7 +45,7 @@ func Login(p *db.PostgresDB) fiber.Handler {
             return c.SendStatus(500)
         }
 
-		log.Printf("User %s logged in\n", creds.Email)
+		log.Printf("User %s logged in\n", id)
 		return c.JSON(fiber.Map{
 			"JWT": jwt,
 			"user": userData,

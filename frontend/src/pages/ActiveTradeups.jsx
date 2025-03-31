@@ -8,7 +8,7 @@ function ActiveTradeups() {
   const [rarityOptions, setRarityOptions] = useState(["All"])
 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:8080/api/tradeups")
+    const eventSource = new EventSource("http://localhost:8080/v1/tradeups")
 
     eventSource.onopen = () => {
       console.log("SSE connection opened successfully")

@@ -1,5 +1,5 @@
 
-const baseUrl = "http://localhost:8080/api/store"
+const baseUrl = "http://localhost:8080/v1/store"
 
 export const buyCrate = async (jwt, name, rarity, count) => {
     const payload = {

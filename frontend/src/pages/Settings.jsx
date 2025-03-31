@@ -31,7 +31,7 @@ function Settings() {
                   name="theme-dropdown"
                   className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
                   aria-label="Default"
-                  value="default"
+                  value="dim"
                   onClick={onClick}
                 />
               </li>
@@ -54,22 +54,6 @@ function Settings() {
                   value="retro" 
                   onClick={onClick}
                 />
-              </li>
-              <li>
-                <input
-                  type="radio"
-                  name="theme-dropdown"
-                  className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-                  aria-label="Valentine"
-                  value="valentine" />
-              </li>
-              <li>
-                <input
-                  type="radio"
-                  name="theme-dropdown"
-                  className="theme-controller btn btn-sm btn-block btn-ghost justify-start"
-                  aria-label="Aqua"
-                  value="aqua" />
               </li>
             </ul>
           </div>

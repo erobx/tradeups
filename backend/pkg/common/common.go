@@ -42,3 +42,38 @@ func ValidateAndReturnUserId(token *jwt.Token, userId string) (jwtUserId string,
     }
     return
 }
+
+func GetNextRarity(prevRarity string) string {
+    if prevRarity == "Contraband" {
+        return ""
+    }
+
+    switch prevRarity {
+    case "Consumer":
+        return "Industrial"
+    case "Industrial":
+        return "Mil-Spec"
+    case "Mil-Spec":
+        return "Restricted"
+    case "Restricted":
+        return "Classified"
+    case "Classified":
+        return "Covert"
+    default:
+        return "Contraband"
+    }
+}
+
+func GetWearNameFromFloat(wear float64) string {
+    if wear < 0.07 {
+        return "Factory New"
+    } else if wear < 0.15 {
+        return "Minimal Wear"
+    } else if wear < 0.38 {
+        return "Field-Tested"
+    } else if wear < 0.45 {
+        return "Well-Worn"
+    } else {
+        return "Battle-Scarred"
+    }
+}

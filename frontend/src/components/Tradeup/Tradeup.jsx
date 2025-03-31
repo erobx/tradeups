@@ -12,7 +12,7 @@ function Tradeup() {
   const textColor = textMap[tradeup.rarity]
 
   useEffect(() => {
-    const eventSource = new EventSource("http://localhost:8080/api/tradeups/" + tradeupId)
+    const eventSource = new EventSource("http://localhost:8080/v1/tradeups/" + tradeupId)
 
     eventSource.onopen = () => {
       console.log("Tradeup SSE connection opened successfully")

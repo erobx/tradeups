@@ -80,10 +80,10 @@ func (s *Server) mapHandlers() error {
 	auth.Post("/register", handlers.Register(s.db))
 	auth.Post("/login", handlers.Login(s.db))
 
-	api := s.fiber.Group("/api")
+	v1 := s.fiber.Group("/v1")
 
     // User
-    users := api.Group("/users")
+    users := v1.Group("/users")
 
     users.Get("/", handlers.GetUser(s.db), middleware.Protected())
 	users.Get("/:userId", handlers.GetUser(s.db), middleware.Protected())
@@ -94,7 +94,7 @@ func (s *Server) mapHandlers() error {
     users.Delete("/:userId/inventory/:invId", handlers.DeleteSkin(s.db), middleware.Protected())
 
     // Tradeups
-    tradeups := api.Group("/tradeups")
+    tradeups := v1.Group("/tradeups")
 
     tradeups.Get("/", handlers.GetActiveTradeupsSSE(s.db))
     tradeups.Get("/:tradeupId", handlers.GetTradeupSSE(s.db))
@@ -104,7 +104,7 @@ func (s *Server) mapHandlers() error {
     tradeups.Delete("/remove", handlers.RemoveSkinFromTradeup(s.db), middleware.Protected())
 
     // Store
-    store := api.Group("/store")
+    store := v1.Group("/store")
     store.Post("/buy", handlers.BuyCrate(s.db), middleware.Protected())
 
 	return nil

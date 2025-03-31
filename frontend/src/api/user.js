@@ -1,5 +1,5 @@
 
-const baseUrl = "http://localhost:8080/api/users/"
+const baseUrl = "http://localhost:8080/v1/users/"
 
 export const getUser = async (jwt) => {
     const opts = {

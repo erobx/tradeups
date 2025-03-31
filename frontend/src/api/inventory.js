@@ -3,7 +3,7 @@
  *
  */
 
-const baseUrl = "http://localhost:8080/api"
+const baseUrl = "http://localhost:8080/v1"
 
 // api/users/:userId/inventory
 export const getInventory = async (jwt, userId) => {

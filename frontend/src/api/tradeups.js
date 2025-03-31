@@ -1,4 +1,4 @@
-const baseUrl = "http://localhost:8080/api/tradeups"
+const baseUrl = "http://localhost:8080/v1/tradeups"
 
 export const getTradeups = async () => {
     const headers = {
