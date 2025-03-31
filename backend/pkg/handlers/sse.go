@@ -72,7 +72,7 @@ func GetTradeupSSE(p *db.PostgresDB) fiber.Handler {
                 }
             })
         }
-        return c.SendStatus(500)       
+        return c.SendStatus(500)
     }
 
 }

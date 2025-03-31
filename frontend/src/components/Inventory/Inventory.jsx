@@ -9,7 +9,7 @@ import { deleteSkin } from "../../api/inventory"
 import useUser from "../../stores/userStore"
 import PageSelector from "./PageSelector"
 
-function Modal({ invId, removeItem }) {
+function Modal({ invId }) {
   const { user, setUser, setBalance } = useUser()
 
   const onClick = async () => {
@@ -18,10 +18,6 @@ function Modal({ invId, removeItem }) {
     if (res.status !== 204) {
       return
     }
-
-    // update ui
-    removeItem(invId)
-
     console.log("deleted: ", invId)
   }
 
@@ -114,7 +110,6 @@ function Inventory() {
             />
             <Modal
               invId={item.id}
-              removeItem={removeItem}
             />
           </div>
         ))}

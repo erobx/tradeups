@@ -6,14 +6,10 @@ function Dashboard() {
   const { user, setUser, setBalance } = useUser()
 
   return (
-    <div className="flex gap-42">
-      <div className="flex-auto">
-        <RecentTradeups user={user} />
-      </div>
+    <div className="flex">
+      <RecentTradeups user={user} />
       <div className="divider divider-horizontal"></div>
-      <div className="flex-auto">
-        <Stats user={user} />
-      </div>
+      <Stats user={user} />
     </div>
   )
 }

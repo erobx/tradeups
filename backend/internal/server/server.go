@@ -82,6 +82,10 @@ func (s *Server) mapHandlers() error {
 
 	v1 := s.fiber.Group("/v1")
 
+    // SSE Test
+    events := v1.Group("/events")
+    events.Get("/inventory/:token", handlers.InventoryUpdates(s.db), middleware.SSE())
+
     // User
     users := v1.Group("/users")
 

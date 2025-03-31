@@ -30,6 +30,24 @@ func Protected() fiber.Handler {
     }
 }
 
+func SSE() fiber.Handler {
+    return func(c fiber.Ctx) error {
+        tokenString := c.Params("token")
+        if tokenString == "" {
+            return c.SendStatus(fiber.StatusUnauthorized)
+        }
+
+        token, err := verifyJwt(tokenString)
+        if err != nil {
+            log.Println(err)
+            return err
+        }
+        c.Locals("jwt", token)
+
+        return c.Next()
+    }
+}
+
 func Admin() fiber.Handler {
     return basicauth.New(basicauth.Config{
         Users: map[string]string{

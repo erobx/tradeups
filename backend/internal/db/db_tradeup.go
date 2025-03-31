@@ -318,21 +318,22 @@ func (p *PostgresDB) decideWinner(tradeup tradeups.Tradeup) error {
         wearTotal += skin.SkinFloat
     }
 
-    err = p.generateWinningSkin(winner, tradeup.Rarity, wearTotal/10)
+    invId, err := p.generateWinningSkin(winner, tradeup.Rarity, wearTotal/10)
     if err != nil {
         return err
     }
+    _ = invId
 
     return nil
 }
 
 // skin to give the user that won a tradeup
-func (p *PostgresDB) generateWinningSkin(userId, prevRarity string, wearAvg float64) error {
+func (p *PostgresDB) generateWinningSkin(userId, prevRarity string, wearAvg float64) (int, error) {
     // select next rarity if possible, select random skin (for now),
     // generate float from Valve's probability, add to user inv
     nextRarity := common.GetNextRarity(prevRarity)
     if nextRarity == "" {
-        return fmt.Errorf("Highest rarity achieved")
+        return -1, fmt.Errorf("Highest rarity achieved")
     }
 
     var wearMin, wearMax float64
@@ -340,7 +341,7 @@ func (p *PostgresDB) generateWinningSkin(userId, prevRarity string, wearAvg floa
     q := "select id, wear_min, wear_max from skins where rarity=$1 order by random() limit 1"
     err := p.conn.QueryRow(context.Background(), q, nextRarity).Scan(&skinId, &wearMin, &wearMax)
     if err != nil {
-        return err
+        return -1, err
     }
 
     wearNum := ((wearMax - wearMin) * wearAvg) + wearMin
@@ -354,12 +355,12 @@ func (p *PostgresDB) generateWinningSkin(userId, prevRarity string, wearAvg floa
     var invId int
     err = p.conn.QueryRow(context.Background(), q, userId, skinId, wearStr, wearNum, isStatTrak).Scan(&invId)
     if err != nil {
-        return err
+        return -1, err
     }
     
     log.Printf("Added winning skin %d to user %s's inventory", invId, userId)
 
-    return nil
+    return invId, nil
 }
 
 func (p *PostgresDB) GetTradeupsInProgress() ([]tradeups.Tradeup, error) {
