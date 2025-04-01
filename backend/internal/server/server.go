@@ -17,12 +17,14 @@ import (
 	"github.com/erobx/tradeups/backend/pkg/handlers"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/cors"
+	"github.com/gorilla/websocket"
 )
 
 type Server struct {
 	addr string
 	fiber *fiber.App
 	db *db.PostgresDB
+    clients map[*websocket.Conn]bool
 }
 
 func NewServer(addr string, db *db.PostgresDB) *Server {
@@ -30,6 +32,7 @@ func NewServer(addr string, db *db.PostgresDB) *Server {
 		addr: addr,
 		fiber: fiber.New(),
 		db: db,
+        clients: make(map[*websocket.Conn]bool),
 	}
 }
 
@@ -81,29 +84,31 @@ func (s *Server) mapHandlers() error {
 	auth.Post("/login", handlers.Login(s.db))
 
 	v1 := s.fiber.Group("/v1")
-
-    // SSE Test
-    //events := v1.Group("/events")
-    //events.Get("/inventory/:token", handlers.InventoryUpdates(s.db), middleware.SSE())
+    // WebSocket
 
     // User
     users := v1.Group("/users")
 
+    // on app init
     users.Get("/", handlers.GetUser(s.db), middleware.Protected())
 	users.Get("/:userId", handlers.GetUser(s.db), middleware.Protected())
+
+    // Should be sent through ws
 	users.Get("/:userId/inventory", handlers.GetInventory(s.db), middleware.Protected())
     users.Get("/:userId/recent", handlers.GetRecentTradeups(s.db), middleware.Protected())
     users.Get("/:userId/stats", handlers.GetUserStats(s.db), middleware.Protected())
-
     users.Delete("/:userId/inventory/:invId", handlers.DeleteSkin(s.db), middleware.Protected())
 
     // Tradeups
     tradeups := v1.Group("/tradeups")
 
+    // Websocket handling
     tradeups.Get("/", handlers.GetActiveTradeupsSSE(s.db))
     tradeups.Get("/:tradeupId", handlers.GetTradeupSSE(s.db))
 
-    tradeups.Post("/new", handlers.NewTradeup(s.db), middleware.Admin())
+    //tradeups.Post("/new", handlers.NewTradeup(s.db), middleware.Admin())
+
+    // Websocket handling
     tradeups.Put("/add", handlers.AddSkinToTradeup(s.db), middleware.Protected())
     tradeups.Delete("/remove", handlers.RemoveSkinFromTradeup(s.db), middleware.Protected())
 
